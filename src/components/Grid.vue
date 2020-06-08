@@ -1,11 +1,11 @@
 <template>
-  <div class="main">
+  <div class="grid-main">
     <div
       :style="{
         height: cellLength * 13 + 'px',
         width: cellLength * 13 + 'px'
       }"
-      class="outer"
+      class="grid-outer"
       @click.self="handleClickOuter"
     >
       <!-- left: outerMargin.left + 'px',
@@ -17,7 +17,7 @@
           top: cellLength * 2 + 'px',
           left: cellLength * 2 + 'px'
         }"
-        class="inner"
+        class="grid-inner"
       >
         <Row
           v-for="(row, i) in rows"
@@ -28,7 +28,7 @@
             height: cellLength * 1 + 'px',
             width: cellLength * 9 + 'px'
           }"
-          class="row"
+          class="grid-row"
           @cellClicked="handleCellClicked"
         ></Row>
       </div>
@@ -43,25 +43,68 @@ let emptyCellArray = new Array(81).fill({});
 emptyCellArray.forEach((_, i) => {
   emptyCellArray[i] = {
     value: Math.random() < 0.3 ? Math.floor(Math.random() * 10) : null,
-    notesTop: [1, 2],
-    notesMid: [3, 4],
+    notesTop: Math.random() < 0.5 ? [1, 2, 3, 4, 5, 6, 7] : [],
+    notesMid: Math.random() < 0.5 ? [3, 4] : [],
     bgColor: null,
     bgImg: null,
+    cursor: false,
     selected: false,
     fixed: Math.random() < 0.1 ? true : false,
     error: Math.random() < 0.1 ? true : false
   };
 });
+// shared maths helper functions
+const rowFromIndex = index => Math.floor(index / 9);
+const colFromIndex = index => index % 9;
+const boxFromIndex = index =>
+  Math.floor(colFromIndex(index) / 3) + 3 * Math.floor(rowFromIndex(index) / 3);
+
+const indexFromCoords = cell => cell.rowId * 9 + cell.cellId;
+// Chess Constraints
+const testKnightCondition = (index, row, col) => {
+  return (
+    (Math.abs(rowFromIndex(index) - row) == 1 &&
+      Math.abs(colFromIndex(index) - col) == 2) ||
+    (Math.abs(rowFromIndex(index) - row) == 2 &&
+      Math.abs(colFromIndex(index) - col) == 1)
+  );
+};
+const testKingCondition = (index, row, col) => {
+  return (
+    Math.abs(rowFromIndex(index) - row) <= 1 &&
+    Math.abs(colFromIndex(index) - col) <= 1
+  );
+};
+
+const toggleKey = (array, key) => {
+  const keyNum = Number.parseInt(key);
+  const index = array.indexOf(keyNum);
+  if (index >= 0) {
+    array.splice(index, 1);
+  } else {
+    array.push(keyNum);
+  }
+  return array.sort();
+};
 
 export default {
   name: "Grid",
   components: {
     Row
   },
+  props: {
+    settings: {
+      required: true,
+      type: Object
+    }
+  },
+  // settings: {
+  //   highlightOptions: ["Row", "Column", "Box", "Number", "King", "Knight"]
+  // },
   data() {
     return {
       cellLength: null,
-      lastCellClicked: { rowId: null, cellId: null },
+      cursorCell: { rowId: null, cellId: null },
       outerMargin: {
         left: null,
         top: null
@@ -72,19 +115,28 @@ export default {
   },
   mounted() {
     this.$nextTick(function() {
-      window.addEventListener("resize", this.updateWindowSize);
       this.updateWindowSize();
+      // resize for sizing the grid
+      window.addEventListener("resize", this.updateWindowSize);
+      // keypress for cell inputs
+      window.addEventListener("keypress", this.handleKeyPress, false);
+      // keydown for arrow keys
+      window.addEventListener("keydown", this.handleKeyDown, false);
     });
-    window.addEventListener("keypress", this.handleKeyPress);
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.updateWindowSize);
+    window.removeEventListener("keypress", this.handleKeyPress, false);
+    window.addEventListener("keydown", this.handleKeyDown, false);
   },
   methods: {
     updateWindowSize() {
-      this.cellLength = Math.min(window.innerWidth, window.innerHeight) / 14;
-      this.outerMargin.left = (window.innerWidth - this.cellLength * 13) / 2;
-      this.outerMargin.top = (window.innerHeight - this.cellLength * 13) / 2;
+      const headerHeight = 60; // px
+      const availHeight = window.innerHeight - headerHeight;
+      const availWidth = window.innerWidth;
+      this.cellLength = Math.min(availWidth, availHeight) / 14;
+      this.outerMargin.left = (availWidth - this.cellLength * 13) / 2;
+      this.outerMargin.top = (availHeight - this.cellLength * 13) / 2;
     },
     styleObject(grid = "inner") {
       const len = grid === "inner" ? 9 : 13;
@@ -93,11 +145,25 @@ export default {
         height: ${this.cellLength * len}
       }`;
     },
+    /**
+     * click outer should:
+     * remove all cell selection
+     * remove cursor cell selection
+     * */
     handleClickOuter() {
-      this.lastCellClicked = { rowId: null, cellId: null };
+      this.cursorCell = { rowId: null, cellId: null };
       this.clearAllSelections();
     },
+    /**
+     * clicked cell should
+     * become the cursor
+     * handle ctrl+click and shift+click as expected adding to selection
+     * with alt, auto highlight cells
+     */
     handleCellClicked(obj) {
+      // first priority - update cursor:
+      this.clearAllSelections("cursor");
+
       // first assuming no ctrl / shift
       if (!obj.event.shiftKey && !obj.event.ctrlKey) {
         this.clearAllSelections();
@@ -108,46 +174,50 @@ export default {
       }
       if (obj.event.altKey && !obj.event.shiftKey && !obj.event.ctrlKey) {
         // select box + row + col
-        const rowFromIndex = index => Math.floor(index / 9);
-        const colFromIndex = index => index % 9;
-        const boxFromIndex = index =>
-          Math.floor(colFromIndex(index) / 3) +
-          3 * Math.floor(rowFromIndex(index) / 3);
+
         const clickedRow = obj.rowId;
         const clickedCol = obj.cellId;
         const clickedBox =
           Math.floor(clickedCol / 3) + 3 * Math.floor(clickedRow / 3);
         this.cells.forEach((cell, index) => {
           // row
-          if (rowFromIndex(index) == clickedRow) {
+          if (
+            this.settings.highlightOptions.includes("Row") &&
+            rowFromIndex(index) == clickedRow
+          ) {
             this.cells[index].selected = true;
           }
           // col
-          else if (colFromIndex(index) == clickedCol) {
+          else if (
+            this.settings.highlightOptions.includes("Column") &&
+            colFromIndex(index) == clickedCol
+          ) {
             this.cells[index].selected = true;
           }
           // box
-          else if (boxFromIndex(index) == clickedBox) {
+          else if (
+            this.settings.highlightOptions.includes("Box") &&
+            boxFromIndex(index) == clickedBox
+          ) {
             this.cells[index].selected = true;
           }
           // king
-          // else if (
-          //   Math.abs(rowFromIndex(index) - clickedRow) <= 1 &&
-          //   Math.abs(colFromIndex(index) - clickedCol) <= 1
-          // ) {
-          //   this.cells[index].selected = true;
-          // }
+          else if (
+            this.settings.highlightOptions.includes("Chess: King") &&
+            testKingCondition(index, clickedRow, clickedCol)
+          ) {
+            this.cells[index].selected = true;
+          }
           // knight
-          // else if (
-          //   (Math.abs(rowFromIndex(index) - clickedRow) == 1 &&
-          //     Math.abs(colFromIndex(index) - clickedCol) == 2) ||
-          //   (Math.abs(rowFromIndex(index) - clickedRow) == 2 &&
-          //     Math.abs(colFromIndex(index) - clickedCol) == 1)
-          // ) {
-          //   this.cells[index].selected = true;
-          // }
+          else if (
+            this.settings.highlightOptions.includes("Chess: Knight") &&
+            testKnightCondition(index, clickedRow, clickedCol)
+          ) {
+            this.cells[index].selected = true;
+          }
           // value
           else if (
+            this.settings.highlightOptions.includes("Number") &&
             (obj.value || obj.value === 0) &&
             this.cells[index].value === obj.value
           ) {
@@ -155,49 +225,140 @@ export default {
           }
         });
       }
-      this.cellLastClicked = { rowId: obj.rowId, cellId: obj.cellId };
-      const index = obj.rowId * 9 + obj.cellId;
+      // store cursor cell
+      this.cursorCell = { rowId: obj.rowId, cellId: obj.cellId };
+      // set cell highlighting / selection
+      const index = indexFromCoords(obj);
       this.cells[index].selected = true;
+      this.cells[index].cursor = true;
     },
-    toggleKey(array, key) {
-      const index = array.indexOf(key);
-      if (~index) {
-        array.slice(index);
-      } else {
-        array.push(index);
+    /**
+     * keydown is an arrow key, of a modifier
+     */
+    handleKeyDown(e) {
+      // e.preventDefault();
+      // console.log("keydown caught: ", e);
+      let newCursorCell = {
+        cellId: this.cursorCell.cellId,
+        rowId: this.cursorCell.rowId
+      };
+      switch (e.key) {
+        case "ArrowLeft":
+          newCursorCell.cellId = Math.max(this.cursorCell.cellId - 1, 0);
+          break;
+        case "ArrowRight":
+          newCursorCell.cellId = Math.min(this.cursorCell.cellId + 1, 8);
+          break;
+        case "ArrowUp":
+          newCursorCell.rowId = Math.max(this.cursorCell.rowId - 1, 0);
+          break;
+        case "ArrowDown":
+          newCursorCell.rowId = Math.min(this.cursorCell.rowId + 1, 8);
+          break;
+        default:
+          // this exits further functionality for modifiers
+          return;
       }
+      // if no modifier, remove selections
+      if (!e.shiftKey && !e.ctrlKey) {
+        this.clearAllSelections("selected");
+      }
+      // remove the old cursor
+      this.clearAllSelections("cursor");
+      // set the new cursor highlighting
+      const cell = this.cells[indexFromCoords(newCursorCell)];
+      cell.cursor = true;
+      cell.selected = true;
+      // store for next use
+      this.cursorCell = newCursorCell;
     },
+    /**
+     * Keypress is a number or letter
+     */
     handleKeyPress(e) {
+      e.preventDefault();
+
+      console.log("keypress caught: ", e);
+
+      // collate useful information
       const output = {
         shift: e.shiftKey,
         ctrl: e.ctrlKey,
         key: String.fromCharCode(e.keyCode),
+        value: null,
         event: e
       };
-      console.log("output: ", output);
-      // if cells are selected, do stuff
+      // get the intended digit
+      // eg shift + 2 => @
+      switch (e.code) {
+        case "Delete":
+          output.value = null;
+          break;
+        case "Digit1":
+        case "Digit2":
+        case "Digit3":
+        case "Digit4":
+        case "Digit5":
+        case "Digit6":
+        case "Digit7":
+        case "Digit8":
+        case "Digit9":
+        case "Digit0":
+          output.value = e.code.slice(5);
+          break;
+        default:
+      }
+      /** if some cells are selected, enter value based on modifier */
+      // if > 0 cells selected
       if (this.cells.some(c => c.selected)) {
         // for each cell
         this.cells.forEach(c => {
-          // if the cell is selected, and shift was held
-          if (c.selected && output.shift && !output.ctrl) {
-            this.toggleKey(c.notesTop, output.key);
-            // this needs to be toggle
-          } else if (c.selected && output.ctrl && !output.shift) {
-            this.toggleKey(c.notesMid, output.key);
-          } else if (c.selected && !output.ctrl && !output.shift) {
-            c.value = output.key;
-          } else {
-            console.log("Unhandled key combination: ", output);
+          if (c.selected) {
+            if (e.code === "Delete") {
+              c.value = null;
+              c.notesTop = [];
+              c.notesMid = [];
+              c.bgColor = null;
+              c.selected = false;
+              c.error = false;
+            } else if (output.shift && !output.ctrl) {
+              // notesTop: +shift, -ctrl
+              c.notesTop = toggleKey(c.notesTop, output.value);
+            } else if (output.ctrl && !output.shift) {
+              // notesMid: -shift, +ctrl
+              c.notesMid = toggleKey(c.notesMid, output.value);
+            } else if (!output.ctrl && !output.shift) {
+              // value: -shift, -ctrl
+              c.value = output.key;
+            } else {
+              // this applies to every cell
+              console.log("what is this key combination?", output, c);
+            }
           }
         });
       }
     },
-    clearAllSelections() {
+    clearAllSelections(prop = "selected") {
       // clear all selection highlighting from cells
-      console.log("cell selection cleared");
-      this.cells.forEach((_, i) => {
-        this.cells[i].selected = false;
+      this.cells.forEach(cell => {
+        cell[prop] = false;
+      });
+    },
+    clearAllErrors() {
+      this.cells.forEach(cell => {
+        cell.error = false;
+      });
+    },
+    resetGrid() {
+      this.cells.forEach(cell => {
+        if (!cell.fixed) {
+          cell.value = null;
+          cell.notesTop = [];
+          cell.notesMid = [];
+          cell.bgColor = null;
+          cell.selected = false;
+          cell.error = false;
+        }
       });
     }
   }
@@ -205,15 +366,17 @@ export default {
 </script>
 
 <style>
-.main {
+.grid-main {
   width: 100%;
   height: 100%;
+  background: lightgrey;
 }
-.outer {
+.grid-outer {
+  margin: auto;
   position: relative;
   background: lightgrey;
 }
-.inner {
+.grid-inner {
   background: grey;
   position: relative;
   display: flex;
@@ -221,7 +384,7 @@ export default {
   justify-content: left;
   border: 2px black solid;
 }
-.row {
+.grid-row {
   flex: 1 1 auto;
   border: 0;
   /* border: 1px red solid;
