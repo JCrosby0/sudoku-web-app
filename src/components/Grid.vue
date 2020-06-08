@@ -164,14 +164,30 @@ export default {
       // first priority - update cursor:
       this.clearAllSelections("cursor");
 
-      // first assuming no ctrl / shift
-      if (!obj.event.shiftKey && !obj.event.ctrlKey) {
+      // first assuming no ctrl, clear selection
+      if (!obj.event.ctrlKey && !obj.event.shiftKey) {
         this.clearAllSelections();
       }
+      // if shift key, calculate the rectangle from last click to this click
       if (obj.event.shiftKey) {
+        if (!obj.event.ctrlKey) {
+          this.clearAllSelections();
+        }
         /* TODO: map from one row/cell to the next,
          and get cells in a line */
+        const minRow = Math.min(this.cursorCell.rowId, obj.rowId);
+        const maxRow = Math.max(this.cursorCell.rowId, obj.rowId);
+        const minCell = Math.min(this.cursorCell.cellId, obj.cellId);
+        const maxCell = Math.max(this.cursorCell.cellId, obj.cellId);
+
+        for (let row = minRow; row <= maxRow; row++) {
+          for (let cell = minCell; cell <= maxCell; cell++) {
+            const index = indexFromCoords({ rowId: row, cellId: cell });
+            this.cells[index].selected = true;
+          }
+        }
       }
+      // alt key only, do selection per settings
       if (obj.event.altKey && !obj.event.shiftKey && !obj.event.ctrlKey) {
         // select box + row + col
 
@@ -225,12 +241,29 @@ export default {
           }
         });
       }
-      // store cursor cell
-      this.cursorCell = { rowId: obj.rowId, cellId: obj.cellId };
-      // set cell highlighting / selection
+
+      // get the cell Index, does this need to be any higher?
       const index = indexFromCoords(obj);
-      this.cells[index].selected = true;
+      // no alt / shift modifiers
+      // ctrl should behave as toggle
+      if (!obj.event.altKey && !obj.event.shiftKey) {
+        this.cells[index].selected = obj.event.ctrlKey
+          ? !this.cells[index].selected
+          : true;
+      }
+      // done with functionality, prepare for next time
+      // store cursor cell and set highlighting
+      // don't update cursor cell if using shift
+      if (!obj.event.shiftKey) {
+        this.cursorCell = { rowId: obj.rowId, cellId: obj.cellId };
+      }
       this.cells[index].cursor = true;
+
+      // set cell highlighting / selection
+      // this.cells[index].selected = obj.event.ctrlKey
+      //   ? !this.cells[index].selected
+      //   : true;
+      // this.cells[index].selected = true;
     },
     /**
      * keydown is an arrow key, of a modifier
@@ -268,7 +301,7 @@ export default {
       // set the new cursor highlighting
       const cell = this.cells[indexFromCoords(newCursorCell)];
       cell.cursor = true;
-      cell.selected = true;
+      cell.selected = !cell.selected;
       // store for next use
       this.cursorCell = newCursorCell;
     },
@@ -327,7 +360,7 @@ export default {
             } else if (output.ctrl && !output.shift) {
               // notesMid: -shift, +ctrl
               c.notesMid = toggleKey(c.notesMid, output.value);
-            } else if (!output.ctrl && !output.shift) {
+            } else if (!c.fixed && !output.ctrl && !output.shift) {
               // value: -shift, -ctrl
               c.value = output.key;
             } else {

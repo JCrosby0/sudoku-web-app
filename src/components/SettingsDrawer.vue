@@ -7,9 +7,19 @@
       direction="rtl"
       size="300px"
     >
-      <el-form ref="form" :model="form" label-width="120px">
-        <el-form-item label="Highlighting:" class="left">
+      <el-form ref="form" :model="form" label-width="125px">
+        <el-form-item label="Highlight:" class="left">
           <el-checkbox-group v-model="form.highlightOptions">
+            <el-checkbox
+              v-for="opt in selectOptions"
+              :key="'hlOpt-' + opt.value"
+              :label="opt.label"
+              :value="opt.value"
+            ></el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="Selection:" class="left">
+          <el-checkbox-group v-model="form.selectOptions">
             <el-checkbox
               v-for="opt in highlightOptions"
               :key="'hlOpt-' + opt.value"
@@ -45,14 +55,17 @@ export default {
       type: Object,
       default: () => {
         return {
-          highlightOptions: []
+          selectOptions: []
         };
       }
     }
   },
   data() {
     return {
-      form: {},
+      form: {
+        selectOptions: [],
+        highlightOptions: []
+      },
       highlightOptions: [
         { label: "Row", value: "Row" },
         { label: "Column", value: "Column" },
@@ -60,6 +73,11 @@ export default {
         { label: "Number", value: "Number" },
         { label: "Chess: King", value: "King" },
         { label: "Chess: Knight", value: "Knight" }
+      ],
+      selectOptions: [
+        { label: "Row", value: "Row" },
+        { label: "Column", value: "Column" },
+        { label: "Box", value: "Box" }
       ]
     };
   },

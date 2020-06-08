@@ -1,12 +1,14 @@
 <template>
   <div
     :class="cellClassObj"
-    @click.capture="handleCellClicked"
     @keyup="handleKeyPress"
-    @dragstart.prevent="handleDragStart"
-    @dragover.capture="handleCellClicked('dragover')"
-    @dragenter.capture="handleCellClicked('dragenter')"
+    @dragstart="handleDrag"
+    @mousedown="handleEvent"
+    @dragleave="handleDrag"
   >
+    <!-- @click="handleEvent" -->
+    <!-- @dragover="handleDrag" -->
+    <!-- @mousedown="handleEvent" -->
     <span :class="valueClassObj">
       {{ cellObj.value }}
     </span>
@@ -90,6 +92,19 @@ export default {
     }
   },
   methods: {
+    handleEvent(e) {
+      console.log("event registered: ", e.type, e, this.rowId, this.cellId);
+      this.handleCellClicked(e);
+    },
+    handleDrag(e) {
+      console.log("event registered: ", e.type, e, this.rowId, this.cellId);
+      e.dataTransfer.effectAllowed = "none";
+      e.dataTransfer.dropEffect = "none";
+      if (e.shiftKey || e.ctrlKey) {
+        this.handleCellClicked(e);
+      }
+      // how to stop visible drag on the screen but still register drag events
+    },
     handleCellClicked(e, qualifier = "none") {
       const outObj = {
         rowId: this.rowId,
@@ -103,9 +118,6 @@ export default {
     handleKeyPress(e) {
       // console.log("e: ", e);
       e.dummy = 42;
-    },
-    handleDragStart(e) {
-      e.preventDefault();
     },
     stringFromArray(arr) {
       let output = "";
