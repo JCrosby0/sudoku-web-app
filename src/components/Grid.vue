@@ -23,7 +23,7 @@
           v-for="(row, i) in rows"
           :key="'compRow' + i"
           :row-id="i"
-          :cells="cells.slice(9 * i, 9 * i + 9)"
+          :cells="currentState.slice(9 * i, 9 * i + 9)"
           :style="{
             height: cellLength * 1 + 'px',
             width: cellLength * 9 + 'px'
@@ -31,6 +31,7 @@
           class="grid-row"
           @cellClicked="handleCellClicked"
         ></Row>
+        <!-- :cells="cells.slice(9 * i, 9 * i + 9)" -->
       </div>
     </div>
   </div>
@@ -38,19 +39,20 @@
 
 <script>
 import Row from "./Row.vue";
+import { mapGetters } from "vuex";
 // generate empty cell data
 let emptyCellArray = new Array(81).fill({});
 emptyCellArray.forEach((_, i) => {
   emptyCellArray[i] = {
-    value: Math.random() < 0.3 ? Math.floor(Math.random() * 10) : null,
-    notesTop: Math.random() < 0.5 ? [1, 2, 3, 4, 5, 6, 7] : [],
-    notesMid: Math.random() < 0.5 ? [3, 4] : [],
+    value: null,
+    notesTop: [],
+    notesMid: [],
     bgColor: null,
     bgImg: null,
     cursor: false,
     selected: false,
-    fixed: Math.random() < 0.1 ? true : false,
-    error: Math.random() < 0.1 ? true : false
+    fixed: false,
+    error: false
   };
 });
 // shared maths helper functions
@@ -87,6 +89,7 @@ const toggleKey = (array, key) => {
   return array.sort();
 };
 
+import { mapActions } from "vuex";
 export default {
   name: "Grid",
   components: {
@@ -113,6 +116,9 @@ export default {
       cells: emptyCellArray
     };
   },
+  computed: {
+    ...mapGetters(["currentState"])
+  },
   mounted() {
     this.$nextTick(function() {
       this.updateWindowSize();
@@ -130,6 +136,7 @@ export default {
     window.addEventListener("keydown", this.handleKeyDown, false);
   },
   methods: {
+    ...mapActions(["newAction"]),
     updateWindowSize() {
       const headerHeight = 60; // px
       const availHeight = window.innerHeight - headerHeight;
@@ -161,6 +168,14 @@ export default {
      * with alt, auto highlight cells
      */
     handleCellClicked(obj) {
+      // DEV
+      // copy state to local
+      // edit local
+      // push to state
+      // TODO: change state to be an object instead of an array
+      // TODO: make state work on an action stack
+      this.cells = [...this.currentState];
+
       // first priority - update cursor:
       this.clearAllSelections("cursor");
 
@@ -264,6 +279,10 @@ export default {
       //   ? !this.cells[index].selected
       //   : true;
       // this.cells[index].selected = true;
+
+      // DEV
+      // push this.cells to store
+      this.newAction(this.cells);
     },
     /**
      * keydown is an arrow key, of a modifier

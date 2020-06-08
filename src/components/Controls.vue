@@ -13,12 +13,35 @@
           {{ control }}
         </li>
       </ul>
-      Add button based controls here :)
+      <el-button-group>
+        <el-button type="primary" plain @click="DEVdummyData"
+          >[Dev] Test Data</el-button
+        >
+      </el-button-group>
+      <el-button-group>
+        <el-button type="primary" plain @click="savePuzzle"
+          >Save State</el-button
+        >
+        <el-button type="primary" plain @click="loadPuzzle"
+          >Load State</el-button
+        >
+      </el-button-group>
+      <el-button-group>
+        <el-button type="success" plain @click="checkPuzzle">Check</el-button>
+        <el-button v-if="setMode" type="warning" plain @click="setPuzzle"
+          >Set</el-button
+        >
+        <el-button type="danger" :plain="!showWarning" @click="resetPuzzle">{{
+          warningText
+        }}</el-button>
+      </el-button-group>
     </div>
   </div>
 </template>
 
 <script>
+const emptyCellArray = require("../assets/dummyData");
+import { mapActions } from "vuex";
 export default {
   name: "Controls",
   props: {
@@ -32,6 +55,10 @@ export default {
   },
   data() {
     return {
+      emptyCellArray: emptyCellArray,
+      showWarning: false,
+      warningText: "Reset",
+      setMode: true,
       controls: [
         "Value: Click cell & type",
         "Top Notes: Click cell, hold Shift and type",
@@ -39,6 +66,71 @@ export default {
         "Highlighting: Hold Alt and click cell"
       ]
     };
+  },
+  methods: {
+    ...mapActions([
+      "newAction",
+      "saveProgress",
+      "restoreProgress",
+      "setPuzzle",
+      "resetPuzzle"
+    ]),
+    DEVdummyData() {
+      const payload = this.emptyCellArray;
+      this.newAction(payload);
+    },
+    checkPuzzle() {
+      // TODO: Puzzle check logic
+      // test if puzzle is correct, then:
+      const pass = false;
+      if (pass) {
+        this.$message({
+          message: "Looks good to me!",
+          type: "success"
+        });
+      } else {
+        this.$message({
+          message: "Something's not quite right...",
+          type: "error"
+        });
+      }
+    },
+    savePuzzle() {
+      this.saveProgress();
+    },
+    loadPuzzle() {
+      this.restoreProgress();
+    },
+    setPuzzle() {
+      this.$confirm("Is the puzzle ready to go?", "Warning").then(() => {
+        this.setMode = false;
+        // fire action to initialise puzzle
+        this.setPuzzle;
+      });
+    },
+    resetPuzzle() {
+      const toggleWarning = (force = null) => {
+        if (force !== null) {
+          this.showWarning = force;
+        } else {
+          this.showWarning = !this.showWarning;
+        }
+        this.warningText = this.showWarning ? "Confirm?" : "Reset";
+      };
+      let warningTimeOut;
+      if (!this.showWarning) {
+        // provide confirmation click
+        toggleWarning(true);
+        warningTimeOut = setTimeout(toggleWarning, 3000);
+      } else {
+        // fire action to reset puzzle
+        this.resetPuzzle;
+        clearTimeout(warningTimeOut);
+        this.$message("Puzzle reset").then(() => {
+          toggleWarning(false);
+        });
+      }
+    }
   }
 };
 </script>

@@ -3,10 +3,26 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
+let emptyCellArray = new Array(81).fill({});
+emptyCellArray.forEach((_, i) => {
+  emptyCellArray[i] = {
+    value: null,
+    notesTop: [],
+    notesMid: [],
+    bgColor: null,
+    bgImg: null,
+    cursor: false,
+    selected: false,
+    fixed: false,
+    error: false
+  };
+});
+
 export default new Vuex.Store({
   getters: {
     currentState: state => {
-      return Object.assign({}, ...state.actionStack);
+      return state.actionStack; // dev testing prior to changing data structure
+      // return Object.assign({}, ...state.actionStack);
     }
   },
   state: {
@@ -14,14 +30,16 @@ export default new Vuex.Store({
      * the action stack should be an array of objects,
      * with the most recently added taking precedent over the rest
      *  */
-    actionStack: [], // ie current action stack
+    // actionStack: [], // ie current action stack
+    actionStack: emptyCellArray, // ie current action stack
     redoStack: [], // populated if user undoes something
     initialState: [], // ie from puzzle setter
     savedState: [] // ie from user
   },
   mutations: {
     NEWACTION(state, payload) {
-      state.actionStack.push(payload);
+      state.actionStack = payload; // dev testing prior to changing data structure
+      // state.actionStack.push(payload);
       state.redoStack = [];
     },
     UNDOACTION(state) {
@@ -38,40 +56,47 @@ export default new Vuex.Store({
     GETSAVEDSTATE(state) {
       state.actionState = [...state.savedState];
     },
-    SETSAVEDSTATE(state, getters) {
-      state.savedState = [getters.currentState];
+    SETSAVEDSTATE(state, payload) {
+      state.savedState = [payload];
     },
     // to reset the puzzle
     GETINITIALSTATE(state) {
       state.actionState = [...state.initialState];
     },
     // avaialable only to the puzzle setter
-    SETINITIALSTATE(state, getters) {
-      state.initialState = [getters.currentState];
+    SETINITIALSTATE(state, payload) {
+      state.initialState = [payload];
     }
   },
 
   actions: {
-    newAction: context => payload => {
-      context.commit("NEWACTION", payload);
+    newAction({ commit }, payload) {
+      commit("NEWACTION", payload);
     },
-    undoAction: context => {
-      context.commit("UNDOACTION");
+    undoAction({ commit }) {
+      commit("UNDOACTION");
     },
-    redoAction: context => {
-      context.commit("REDOACTION");
+    redoAction({ commit }) {
+      commit("REDOACTION");
     },
-    saveProgress: context => {
-      context.commit("SETSAVEDSTATE");
+    saveProgress({ commit, getters }) {
+      const payload = getters.currentState;
+      commit("SETSAVEDSTATE", payload);
     },
-    restoreProgress: context => {
-      context.commit("GETSAVEDSTATE");
+    restoreProgress({ commit }) {
+      commit("GETSAVEDSTATE");
     },
-    setPuzzle: context => {
-      context.commit("SETINITIALSTATE");
+    setPuzzle({ commit, getters }) {
+      const payload = getters.currentState;
+      payload.forEach(cell => {
+        if (cell.value) {
+          cell.fixed = true;
+        }
+      });
+      commit("SETINITIALSTATE", payload);
     },
-    resetPuzzle: context => {
-      context.commit("GETINITIALSTATE");
+    resetPuzzle({ commit }) {
+      commit("GETINITIALSTATE");
     }
   },
   modules: {}

@@ -12,7 +12,7 @@ module.exports = {
   rules: {
     "no-console": "off",
     "no-debugger": "off",
-    "vue/attributes-order": "warn",
+    "vue/attributes-order": "error",
     "vue/no-confusing-v-for-v-if": "error",
     "vue/this-in-template": "error",
     "vue/array-bracket-spacing": "warn",
@@ -21,11 +21,16 @@ module.exports = {
     "vue/match-component-file-name": "warn",
     "vue/no-reserved-component-names": "warn",
     "vue/no-static-inline-styles": "error",
-    "vue/object-curly-spacing": "error",
+    "vue/object-curly-spacing": "warn",
     "vue/require-name-property": "error",
     "vue/block-spacing": "warn",
-    "vue/component-tags-order": "off",
-    "vue/key-spacing": "error"
+    "vue/key-spacing": "warn",
+    "object-property-newline": [
+      "error",
+      {
+        allowAllPropertiesOnSameLine: true
+      }
+    ]
   },
 
   extends: [

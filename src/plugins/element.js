@@ -10,7 +10,11 @@ import {
   Checkbox,
   CheckboxGroup,
   Form,
-  FormItem
+  FormItem,
+  Loading,
+  Message,
+  MessageBox,
+  Notification
 } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -28,3 +32,13 @@ Vue.use(Checkbox);
 Vue.use(CheckboxGroup);
 Vue.use(Form);
 Vue.use(FormItem);
+
+Vue.use(Loading.directive);
+
+Vue.prototype.$loading = Loading.service;
+Vue.prototype.$msgbox = MessageBox;
+Vue.prototype.$alert = MessageBox.alert;
+Vue.prototype.$confirm = MessageBox.confirm;
+Vue.prototype.$prompt = MessageBox.prompt;
+Vue.prototype.$notify = Notification;
+Vue.prototype.$message = Message;
