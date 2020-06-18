@@ -1,5 +1,5 @@
 <template>
-  <div class="left rules-container">
+  <div id="controls-container" class="left">
     <div class="controls">
       <h4 class="title">Controls:</h4>
       <div class="button-array">
@@ -15,7 +15,7 @@
         <el-button
           v-for="toggle in toggles"
           :key="toggle"
-          :type="currentToggle === toggle && 'primary'"
+          :type="currentToggle === toggle ? 'primary' : 'default'"
           @click="handleToggle(toggle)"
           >{{ toggle }}</el-button
         >
@@ -45,14 +45,14 @@ export default {
 .title {
   text-align: left;
 }
-.rules-container {
+#controls-container {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-.rules-container .rules,
-.rules-container .controls {
+#controls-container .rules,
+#controls-container .controls {
   flex: 1 1 50%;
   border: 1px solid #eee;
   padding: 0 12px;

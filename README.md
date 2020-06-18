@@ -38,19 +38,13 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Finish handling click and drag selections in grid
 
-click and drag is buggy
+!click and drag is buggy
 
 ## Set up data structure for current state of grid
 
-# set up vuex
-
 # undo redo stack
 
-# current state is object(...) of stack
-
 ## Set up cell to be completely dumb with slots
-
-## Set up rules pane with slots
 
 ## Set up buttons for functionality
 

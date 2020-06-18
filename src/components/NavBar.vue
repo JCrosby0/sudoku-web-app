@@ -3,7 +3,8 @@
     <h2 class="title">JC's Sudoku Grid</h2>
     <!-- prettier-ignore -->
     <div class="menu">
-            <el-button
+      <el-button
+        id="navInput"
         type="primary"
         plain
         round
@@ -11,6 +12,7 @@
         @click="toggle('controls')"
       >Input</el-button>
       <el-button
+        id="navRules"
         type="primary"
         plain
         round
@@ -18,6 +20,7 @@
         @click="toggle('rules')"
       >Rules</el-button>
       <el-button
+        id="navSettings"
         type="primary"
         plain
         round

@@ -1,5 +1,5 @@
 <template>
-  <div class="left rules-container">
+  <div id="rules-container" class="left">
     <div class="rules">
       <h2 v-if="title !== ''">{{ title }}</h2>
       <h4>Rules:</h4>
@@ -163,14 +163,14 @@ export default {
 </script>
 
 <style>
-.rules-container {
+#rules-container {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-.rules-container .rules,
-.rules-container .rules-controls {
+#rules-container .rules,
+#rules-container .rules-controls {
   text-align: left;
   flex: 1 1 50%;
   border: 1px solid #eee;

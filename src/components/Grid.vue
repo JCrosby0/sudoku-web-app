@@ -57,59 +57,8 @@ emptyCellArray.forEach((_, i) => {
     error: false
   };
 });
-// shared maths helper functions
-const rowFromIndex = index => Math.floor(index / 9);
-const colFromIndex = index => index % 9;
-const boxFromIndex = index =>
-  Math.floor(colFromIndex(index) / 3) + 3 * Math.floor(rowFromIndex(index) / 3);
 
-const indexFromCoords = cell => cell.rowId * 9 + cell.cellId;
-// Chess Constraints
-const testKnightCondition = (index, row, col) => {
-  // row abs.difference of two and col abs.difference of 1 of vice versa
-  return (
-    (Math.abs(rowFromIndex(index) - row) == 1 &&
-      Math.abs(colFromIndex(index) - col) == 2) ||
-    (Math.abs(rowFromIndex(index) - row) == 2 &&
-      Math.abs(colFromIndex(index) - col) == 1)
-  );
-};
-const testQueenCondition = (index, row, col) => {
-  // a diagonal will have:
-  // - the same difference between row and col of two points,
-  // - the same sum between row and col of two points
-  const col_ind = colFromIndex(index);
-  const row_ind = rowFromIndex(index);
-  // shared column
-  if (col_ind === col) return true;
-  // shared row
-  if (row_ind === row) return true;
-  // shared NW-SE diagonal
-  if (col_ind - row_ind === col - row) return true;
-  // shared NE-SW diagonal
-  if (col_ind + row_ind === col + row) return true;
-  return false;
-};
-const testKingCondition = (index, row, col) => {
-  // both row and column must have abs(difference <=1
-  return (
-    Math.abs(rowFromIndex(index) - row) <= 1 &&
-    Math.abs(colFromIndex(index) - col) <= 1
-  );
-};
-
-const toggleKey = (array, key) => {
-  const keyNum = Number.parseInt(key);
-  if (isNaN(keyNum)) return array;
-  const index = array.indexOf(keyNum);
-  if (index >= 0) {
-    array.splice(index, 1);
-  } else {
-    array.push(keyNum);
-  }
-  return array.sort();
-};
-
+import * as fn from "../plugins/sudokuFunctions";
 import { mapActions } from "vuex";
 export default {
   name: "Grid",
@@ -120,9 +69,6 @@ export default {
       type: Object
     }
   },
-  // settings: {
-  //   highlightOptions: ["Row", "Column", "Box", "Number", "King", "Knight"]
-  // },
   data() {
     return {
       cellLength: null,
@@ -225,61 +171,76 @@ export default {
         const maxCell = Math.max(this.cursorCell.cellId, obj.cellId);
         for (let row = minRow; row <= maxRow; row++) {
           for (let cell = minCell; cell <= maxCell; cell++) {
-            const index = indexFromCoords({ rowId: row, cellId: cell });
+            const index = fn.indexFromCoords({ rowId: row, cellId: cell });
+            console.log("index: ", index);
             this.selectedCells.push(index);
           }
         }
       }
       // get the cell Index, does this need to be any higher?
-      const index = indexFromCoords(obj);
+      const index = fn.indexFromCoords(obj);
+      console.log("index: ", index);
       // alt key only, do highlight per settings
       if (obj.event.altKey && !obj.event.shiftKey && !obj.event.ctrlKey) {
-        // TODO: Not working because index is not defined
-        // select box + row + col
+        // prep before looping through the grid
         this.highlightedCells = [];
         const clickedRow = obj.rowId;
         const clickedCol = obj.cellId;
         const clickedBox =
           Math.floor(clickedCol / 3) + 3 * Math.floor(clickedRow / 3);
+        // only prep for handling highlighting from all cells if needed
+        let cellsWithValue = [];
+        let rowsWithValue = [];
+        let colsWithValue = [];
+        let boxesWithValue = [];
+        if (this.settings.highlightOptions.includes("Number + Seen")) {
+          cellsWithValue = this.currentState.filter(
+            c => c.value == Number.parseInt(obj.value)
+          );
+          rowsWithValue = cellsWithValue.map(c => fn.rowFromIndex(c.index));
+          colsWithValue = cellsWithValue.map(c => fn.colFromIndex(c.index));
+          boxesWithValue = cellsWithValue.map(c => fn.boxFromIndex(c.index));
+        }
+        // apply highlighyt conditions to each cell in the grid
         this.currentState.forEach((cell, index) => {
           // row
           if (
             this.settings.highlightOptions.includes("Row") &&
-            rowFromIndex(index) == clickedRow
+            fn.rowFromIndex(index) == clickedRow
           ) {
             this.highlightedCells.push(index);
           }
           // col
           else if (
             this.settings.highlightOptions.includes("Column") &&
-            colFromIndex(index) == clickedCol
+            fn.colFromIndex(index) == clickedCol
           ) {
             this.highlightedCells.push(index);
           }
           // box
           else if (
             this.settings.highlightOptions.includes("Box") &&
-            boxFromIndex(index) == clickedBox
+            fn.boxFromIndex(index) == clickedBox
           ) {
             this.highlightedCells.push(index);
           }
           // king
           else if (
             this.settings.highlightOptions.includes("Chess: King") &&
-            testKingCondition(index, clickedRow, clickedCol)
+            fn.testKingCondition(index, clickedRow, clickedCol)
           ) {
             this.highlightedCells.push(index);
           } // queen
           else if (
             this.settings.highlightOptions.includes("Chess: Queen") &&
-            testQueenCondition(index, clickedRow, clickedCol)
+            fn.testQueenCondition(index, clickedRow, clickedCol)
           ) {
             this.highlightedCells.push(index);
           }
           // knight
           else if (
             this.settings.highlightOptions.includes("Chess: Knight") &&
-            testKnightCondition(index, clickedRow, clickedCol)
+            fn.testKnightCondition(index, clickedRow, clickedCol)
           ) {
             this.highlightedCells.push(index);
           }
@@ -290,6 +251,19 @@ export default {
             cell.value === obj.value
           ) {
             this.highlightedCells.push(index);
+          }
+          // value + seen
+          else if (
+            this.settings.highlightOptions.includes("Number + Seen") &&
+            (obj.value || obj.value === 0)
+          ) {
+            if (
+              rowsWithValue.includes(fn.rowFromIndex(index)) ||
+              colsWithValue.includes(fn.colFromIndex(index)) ||
+              boxesWithValue.includes(fn.boxFromIndex(index))
+            ) {
+              this.highlightedCells.push(index);
+            }
           }
         });
       }
@@ -361,7 +335,7 @@ export default {
           this.handleKeyPress(e);
           return;
       }
-      const index = indexFromCoords(newCursorCell);
+      const index = fn.indexFromCoords(newCursorCell);
       if (!e.shiftKey && !e.ctrlKey) {
         // if no modifier, remove all selections
         this.clearAllSelections("selected");
@@ -458,10 +432,11 @@ export default {
           c.error = false;
         } else if (output.shift && !output.ctrl) {
           // Add/remove keystroke to notesTop: +shift, -ctrl
-          c.notesTop = toggleKey(c.notesTop, output.value);
+          console.log(fn);
+          c.notesTop = fn.toggleKey(c.notesTop, output.value);
         } else if (output.ctrl && !output.shift) {
           // Add/remove keystroke to notesMid: -shift, +ctrl
-          c.notesMid = toggleKey(c.notesMid, output.value);
+          c.notesMid = fn.toggleKey(c.notesMid, output.value);
           // !IMPORTANT: prevent default here to stop control changing tabs etc...
           e.preventDefault();
         } else if (!output.ctrl && !output.shift) {

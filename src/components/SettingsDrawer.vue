@@ -1,12 +1,14 @@
 <template>
   <div>
     <el-drawer
+      id="settings-container"
       :visible.sync="showDrawer"
       :before-close="handleClose"
-      title="Settings"
       direction="rtl"
       size="300px"
     >
+      <!-- title="Settings" -->
+      <h4 slot="title" class="left">Settings</h4>
       <el-form ref="form" :model="form" label-width="125px">
         <el-form-item label="Select:" class="left">
           <el-checkbox-group v-model="form.selectOptions">
@@ -69,6 +71,7 @@ export default {
         { label: "Column", value: "Column" },
         { label: "Box", value: "Box" },
         { label: "Number", value: "Number" },
+        { label: "Number + Seen", value: "NumberSeen" },
         { label: "Chess: King", value: "King" },
         { label: "Chess: Queen", value: "Queen" },
         { label: "Chess: Knight", value: "Knight" }

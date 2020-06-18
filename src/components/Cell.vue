@@ -1,5 +1,6 @@
 <template>
   <div
+    :id="'r' + rowId + 'c' + cellId"
     :class="cellClassObj"
     @keyup="handleKeyPress"
     @dragstart="handleDrag"
@@ -11,22 +12,22 @@
     <!-- @dragover="handleDrag" -->
     <!-- @click="handleEvent" -->
     <!-- @mousedown="handleEvent" -->
-    <span :class="valueClassObj">
-      {{ cellObj.value }}
-    </span>
-    <span v-show="[null, '', ' '].includes(cellObj.value)" class="notesTop">
-      {{ notesTop }}
-    </span>
-    <span v-show="[null, '', ' '].includes(cellObj.value)" class="notesMid">
-      {{ notesMid }}
-    </span>
-    <span v-show="[null, '', ' '].includes(cellObj.value)" class="notesBot">
-      {{ notesBot }}
-    </span>
+    <span :class="valueClassObj">{{ cellObj.value }}</span>
+    <span v-show="cellObj.value === null" class="notesTop">{{ notesTop }}</span>
+    <span v-show="cellObj.value === null" class="notesMid">{{ notesMid }}</span>
+    <span v-show="cellObj.value === null" class="notesBot">{{ notesBot }}</span>
   </div>
 </template>
 
 <script>
+/** TODO: find a reactive way to access grid cell options
+assign index and go to store?
+maybe a cell hydrator component that just 
+- takes index, 
+- gets from store and 
+- throws it into dumb cell?
+*/
+import * as fn from "../plugins/sudokuFunctions";
 import { mapGetters } from "vuex";
 export default {
   name: "Cell",
@@ -55,6 +56,9 @@ export default {
     //     };
     //   }
     // }
+  },
+  data() {
+    return { fn: fn };
   },
   computed: {
     ...mapGetters(["cellDescription"]),
