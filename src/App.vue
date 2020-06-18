@@ -10,6 +10,9 @@
     <el-container class="container">
       <Grid :settings="settings" />
       <el-aside v-show="showRules">
+        <Rules title="My First Sudoku" />
+      </el-aside>
+      <el-aside v-show="showControls">
         <Controls />
       </el-aside>
     </el-container>
@@ -20,9 +23,11 @@
 import NavBar from "./components/NavBar.vue";
 import Grid from "./components/Grid.vue";
 import Controls from "./components/Controls.vue";
+import Rules from "./components/Rules.vue";
 import SettingsDrawer from "./components/SettingsDrawer.vue";
 
 const defaultSettings = {
+  selectOptions: [],
   highlightOptions: ["Row", "Column", "Box", "Number"]
 };
 
@@ -32,7 +37,8 @@ export default {
     NavBar,
     Grid,
     SettingsDrawer,
-    Controls
+    Controls,
+    Rules
   },
   mounted() {
     this.settings = Object.assign({}, defaultSettings);
@@ -41,7 +47,8 @@ export default {
     return {
       settings: {},
       showSettings: false,
-      showRules: true
+      showRules: true,
+      showControls: false
     };
   },
   methods: {
@@ -54,11 +61,16 @@ export default {
     },
     handleToggle(type) {
       switch (type) {
+        case "controls":
+          this.showControls = !this.showControls;
+          this.showRules = false;
+          break;
         case "settings":
           this.showSettings = !this.showSettings;
           break;
         case "rules":
           this.showRules = !this.showRules;
+          this.showControls = false;
           break;
         default:
       }

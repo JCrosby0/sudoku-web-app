@@ -1,13 +1,9 @@
 module.exports = {
   root: true,
 
-  env: {
-    node: true
-  },
+  env: { node: true },
 
-  parserOptions: {
-    parser: "babel-eslint"
-  },
+  parserOptions: { parser: "babel-eslint" },
 
   rules: {
     "no-console": "off",
@@ -25,12 +21,8 @@ module.exports = {
     "vue/require-name-property": "error",
     "vue/block-spacing": "warn",
     "vue/key-spacing": "warn",
-    "object-property-newline": [
-      "error",
-      {
-        allowAllPropertiesOnSameLine: true
-      }
-    ]
+    "object-curly-newline": [2, { multiline: true }],
+    "object-property-newline": [2, { allowAllPropertiesOnSameLine: true }]
   },
 
   extends: [

@@ -1,14 +1,16 @@
 <template>
   <div class="outerRow">
     <Cell
-      v-for="(cell, i) in cells"
+      v-for="(cell, i) in 9"
       :key="'compRow' + rowId + 'cell' + i"
       :row-id="rowId"
       :cell-id="i"
-      :cell-obj="cell"
       class="cell"
-      @cellClicked="handleCellClicked"
+      @emitCellClicked="handleCellClicked"
+      @emitDragAdd="handleDragAdd"
+      @emitDragEnd="handleDragEnd"
     />
+    <!-- :cell-obj="cell" -->
   </div>
 </template>
 
@@ -17,22 +19,26 @@ import Cell from "./Cell.vue";
 
 export default {
   name: "Row",
-  components: {
-    Cell
-  },
+  components: { Cell },
   props: {
     rowId: {
       required: true,
       type: Number
-    },
-    cells: {
-      required: true,
-      type: Array
     }
+    // cells: {
+    //   required: true,
+    //   type: Array
+    // }
   },
   methods: {
     handleCellClicked(obj) {
-      this.$emit("cellClicked", obj);
+      this.$emit("emitCellClicked", obj);
+    },
+    handleDragAdd(obj) {
+      this.$emit("emitDragAdd", obj);
+    },
+    handleDragEnd(obj) {
+      this.$emit("emitDragEnd", obj);
     }
   }
 };

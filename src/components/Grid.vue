@@ -9,7 +9,7 @@
       @click.self="handleClickOuter"
     >
       <!-- left: outerMargin.left + 'px',
-        top: outerMargin.top + 'px' -->
+      top: outerMargin.top + 'px'-->
       <div
         :style="{
           height: cellLength * 9 + 'px',
@@ -23,14 +23,16 @@
           v-for="(row, i) in rows"
           :key="'compRow' + i"
           :row-id="i"
-          :cells="currentState.slice(9 * i, 9 * i + 9)"
           :style="{
             height: cellLength * 1 + 'px',
             width: cellLength * 9 + 'px'
           }"
           class="grid-row"
-          @cellClicked="handleCellClicked"
+          @emitCellClicked="handleCellClicked"
+          @emitDragAdd="handleDragAdd"
+          @emitDragEnd="handleDragEnd"
         ></Row>
+        <!-- :cells="currentState.slice(9 * i, 9 * i + 9)" -->
         <!-- :cells="cells.slice(9 * i, 9 * i + 9)" -->
       </div>
     </div>
@@ -64,6 +66,7 @@ const boxFromIndex = index =>
 const indexFromCoords = cell => cell.rowId * 9 + cell.cellId;
 // Chess Constraints
 const testKnightCondition = (index, row, col) => {
+  // row abs.difference of two and col abs.difference of 1 of vice versa
   return (
     (Math.abs(rowFromIndex(index) - row) == 1 &&
       Math.abs(colFromIndex(index) - col) == 2) ||
@@ -71,7 +74,24 @@ const testKnightCondition = (index, row, col) => {
       Math.abs(colFromIndex(index) - col) == 1)
   );
 };
+const testQueenCondition = (index, row, col) => {
+  // a diagonal will have:
+  // - the same difference between row and col of two points,
+  // - the same sum between row and col of two points
+  const col_ind = colFromIndex(index);
+  const row_ind = rowFromIndex(index);
+  // shared column
+  if (col_ind === col) return true;
+  // shared row
+  if (row_ind === row) return true;
+  // shared NW-SE diagonal
+  if (col_ind - row_ind === col - row) return true;
+  // shared NE-SW diagonal
+  if (col_ind + row_ind === col + row) return true;
+  return false;
+};
 const testKingCondition = (index, row, col) => {
+  // both row and column must have abs(difference <=1
   return (
     Math.abs(rowFromIndex(index) - row) <= 1 &&
     Math.abs(colFromIndex(index) - col) <= 1
@@ -80,6 +100,7 @@ const testKingCondition = (index, row, col) => {
 
 const toggleKey = (array, key) => {
   const keyNum = Number.parseInt(key);
+  if (isNaN(keyNum)) return array;
   const index = array.indexOf(keyNum);
   if (index >= 0) {
     array.splice(index, 1);
@@ -92,9 +113,7 @@ const toggleKey = (array, key) => {
 import { mapActions } from "vuex";
 export default {
   name: "Grid",
-  components: {
-    Row
-  },
+  components: { Row },
   props: {
     settings: {
       required: true,
@@ -113,30 +132,37 @@ export default {
         top: null
       },
       rows: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-      cells: emptyCellArray
+      cells: emptyCellArray,
+      selectedCells: [],
+      highlightedCells: [],
+      cursorIndexArray: [],
+      dragSelectionObj: {}
     };
   },
   computed: {
-    ...mapGetters(["currentState"])
+    ...mapGetters(["currentState"]),
+    dragSelection() {
+      return Object.keys(this.dragSelectionObj);
+    }
   },
   mounted() {
     this.$nextTick(function() {
       this.updateWindowSize();
       // resize for sizing the grid
       window.addEventListener("resize", this.updateWindowSize);
-      // keypress for cell inputs
-      window.addEventListener("keypress", this.handleKeyPress, false);
+      // keypress for cell inputs - this is also registering through keydown
+      // window.addEventListener("keypress", this.handleKeyPress, false);
       // keydown for arrow keys
       window.addEventListener("keydown", this.handleKeyDown, false);
     });
   },
   beforeDestroy() {
     window.removeEventListener("resize", this.updateWindowSize);
-    window.removeEventListener("keypress", this.handleKeyPress, false);
-    window.addEventListener("keydown", this.handleKeyDown, false);
+    // window.removeEventListener("keypress", this.handleKeyPress, false);
+    window.removeEventListener("keydown", this.handleKeyDown, false);
   },
   methods: {
-    ...mapActions(["newAction"]),
+    ...mapActions(["newAction", "undoAction", "redoAction"]),
     updateWindowSize() {
       const headerHeight = 60; // px
       const availHeight = window.innerHeight - headerHeight;
@@ -153,32 +179,35 @@ export default {
       }`;
     },
     /**
-     * click outer should:
-     * remove all cell selection
-     * remove cursor cell selection
+     * * handleClickOuter
+     * Fires when user clicks outside the grid
+     * Expected functionality:
+     * - remove all cell selection
+     * - remove cursor cell selection
+     * - remove all highlights
      * */
     handleClickOuter() {
       this.cursorCell = { rowId: null, cellId: null };
+      this.cursorIndexArray = [];
       this.clearAllSelections();
     },
     /**
-     * clicked cell should
-     * become the cursor
-     * handle ctrl+click and shift+click as expected adding to selection
-     * with alt, auto highlight cells
+     * * handleCellClicked
+     * Fires when user clicks a cell (not types)
+     * Expected functionality:
+     * - clicked cell should update with cursor
+     * - ctrl click should toggle selection of that cell
+     * - shift click should select a rectangle of cells
+     * - alt click should auto highlight cells per settings
      */
     handleCellClicked(obj) {
-      // DEV
-      // copy state to local
-      // edit local
-      // push to state
-      // TODO: change state to be an object instead of an array
-      // TODO: make state work on an action stack
-      this.cells = [...this.currentState];
-
+      if (obj.event.type.slice(0, 4) === "drag") {
+        return;
+      }
       // first priority - update cursor:
+      // consider not doing this if shift?
+      this.clearAllSelections("highlight");
       this.clearAllSelections("cursor");
-
       // first assuming no ctrl, clear selection
       if (!obj.event.ctrlKey && !obj.event.shiftKey) {
         this.clearAllSelections();
@@ -194,142 +223,169 @@ export default {
         const maxRow = Math.max(this.cursorCell.rowId, obj.rowId);
         const minCell = Math.min(this.cursorCell.cellId, obj.cellId);
         const maxCell = Math.max(this.cursorCell.cellId, obj.cellId);
-
         for (let row = minRow; row <= maxRow; row++) {
           for (let cell = minCell; cell <= maxCell; cell++) {
             const index = indexFromCoords({ rowId: row, cellId: cell });
-            this.cells[index].selected = true;
+            this.selectedCells.push(index);
           }
         }
       }
-      // alt key only, do selection per settings
+      // get the cell Index, does this need to be any higher?
+      const index = indexFromCoords(obj);
+      // alt key only, do highlight per settings
       if (obj.event.altKey && !obj.event.shiftKey && !obj.event.ctrlKey) {
+        // TODO: Not working because index is not defined
         // select box + row + col
-
+        this.highlightedCells = [];
         const clickedRow = obj.rowId;
         const clickedCol = obj.cellId;
         const clickedBox =
           Math.floor(clickedCol / 3) + 3 * Math.floor(clickedRow / 3);
-        this.cells.forEach((cell, index) => {
+        this.currentState.forEach((cell, index) => {
           // row
           if (
             this.settings.highlightOptions.includes("Row") &&
             rowFromIndex(index) == clickedRow
           ) {
-            this.cells[index].selected = true;
+            this.highlightedCells.push(index);
           }
           // col
           else if (
             this.settings.highlightOptions.includes("Column") &&
             colFromIndex(index) == clickedCol
           ) {
-            this.cells[index].selected = true;
+            this.highlightedCells.push(index);
           }
           // box
           else if (
             this.settings.highlightOptions.includes("Box") &&
             boxFromIndex(index) == clickedBox
           ) {
-            this.cells[index].selected = true;
+            this.highlightedCells.push(index);
           }
           // king
           else if (
             this.settings.highlightOptions.includes("Chess: King") &&
             testKingCondition(index, clickedRow, clickedCol)
           ) {
-            this.cells[index].selected = true;
+            this.highlightedCells.push(index);
+          } // queen
+          else if (
+            this.settings.highlightOptions.includes("Chess: Queen") &&
+            testQueenCondition(index, clickedRow, clickedCol)
+          ) {
+            this.highlightedCells.push(index);
           }
           // knight
           else if (
             this.settings.highlightOptions.includes("Chess: Knight") &&
             testKnightCondition(index, clickedRow, clickedCol)
           ) {
-            this.cells[index].selected = true;
+            this.highlightedCells.push(index);
           }
           // value
           else if (
             this.settings.highlightOptions.includes("Number") &&
             (obj.value || obj.value === 0) &&
-            this.cells[index].value === obj.value
+            cell.value === obj.value
           ) {
-            this.cells[index].selected = true;
+            this.highlightedCells.push(index);
           }
         });
       }
 
-      // get the cell Index, does this need to be any higher?
-      const index = indexFromCoords(obj);
+      // SET CELL SELECTION
       // no alt / shift modifiers
       // ctrl should behave as toggle
       if (!obj.event.altKey && !obj.event.shiftKey) {
-        this.cells[index].selected = obj.event.ctrlKey
-          ? !this.cells[index].selected
-          : true;
+        // if this.selectedCells includes index && ctrl - remove
+        // if this.selectedCells inlcudes index && !ctrl - add to selection
+        // if this.selectedCells !include index && ctrl - add to selection
+        // if this.selectedCells !include index && !ctrl - add to selection
+        if (this.selectedCells.includes(index) && obj.event.ctrlKey) {
+          this.selectedCells = this.selectedCells.filter(c => c !== index);
+        } else if (!this.selectedCells.includes(index)) {
+          this.selectedCells.push(index);
+        }
       }
       // done with functionality, prepare for next time
       // store cursor cell and set highlighting
-      // don't update cursor cell if using shift
       if (!obj.event.shiftKey) {
         this.cursorCell = { rowId: obj.rowId, cellId: obj.cellId };
+        this.cursorIndexArray = [index];
       }
-      this.cells[index].cursor = true;
-
-      // set cell highlighting / selection
-      // this.cells[index].selected = obj.event.ctrlKey
-      //   ? !this.cells[index].selected
-      //   : true;
-      // this.cells[index].selected = true;
-
-      // DEV
-      // push this.cells to store
-      this.newAction(this.cells);
     },
     /**
-     * keydown is an arrow key, of a modifier
+     * * handleKeyDown
+     * Key down is catching arrow keys and modifiers
+     * It is also the listener for all keystrokes
+     * TODO: handle modifiers changing state of any on screen input
+     * Expected functionality:
+     * - arrow key should move cursor relative to current position
+     * - existing selection should be removed
      */
     handleKeyDown(e) {
-      // e.preventDefault();
-      // console.log("keydown caught: ", e);
+      // console.log("keyDownRegistered", e);
       let newCursorCell = {
         cellId: this.cursorCell.cellId,
         rowId: this.cursorCell.rowId
       };
       switch (e.key) {
+        case "ControlLeft":
+        case "ControlRight":
+        case "ShiftLeft":
+        case "ShiftRight":
+        case "AltLeft":
+        case "AltRight":
+          // TODO: change on screen buttons based on modifier here
+          // e.preventDefault();
+          return;
         case "ArrowLeft":
           newCursorCell.cellId = Math.max(this.cursorCell.cellId - 1, 0);
+          e.preventDefault();
           break;
         case "ArrowRight":
           newCursorCell.cellId = Math.min(this.cursorCell.cellId + 1, 8);
+          e.preventDefault();
           break;
         case "ArrowUp":
           newCursorCell.rowId = Math.max(this.cursorCell.rowId - 1, 0);
+          e.preventDefault();
           break;
         case "ArrowDown":
           newCursorCell.rowId = Math.min(this.cursorCell.rowId + 1, 8);
+          e.preventDefault();
           break;
         default:
-          // this exits further functionality for modifiers
+          // handle functionality for key input (numbers, letters)
+          this.handleKeyPress(e);
           return;
       }
-      // if no modifier, remove selections
+      const index = indexFromCoords(newCursorCell);
       if (!e.shiftKey && !e.ctrlKey) {
+        // if no modifier, remove all selections
         this.clearAllSelections("selected");
       }
+      this.selectedCells.push(index);
       // remove the old cursor
       this.clearAllSelections("cursor");
       // set the new cursor highlighting
-      const cell = this.cells[indexFromCoords(newCursorCell)];
-      cell.cursor = true;
-      cell.selected = !cell.selected;
       // store for next use
       this.cursorCell = newCursorCell;
+      this.cursorIndexArray = [index];
     },
     /**
-     * Keypress is a number or letter
+     * * handleKeyPress
+     * Keypress is a number or letter -- user input
+     * Expected functionality:
+     * - it modifies the state of the grid
+     * - new state is written to store
+     * - no modifier is the value for the cell
+     * - shift is topNotes
+     * - ctrl is midNotes
      */
     handleKeyPress(e) {
-      e.preventDefault();
-
+      // e.preventDefault();
       console.log("keypress caught: ", e);
 
       // collate useful information
@@ -358,43 +414,99 @@ export default {
         case "Digit0":
           output.value = e.code.slice(5);
           break;
+        case "KeyY":
+          if (output.ctrl && e.code == "KeyY") {
+            this.redoAction();
+          }
+          break;
+        case "KeyZ":
+          if (output.ctrl && e.code == "KeyZ") {
+            //undo function
+            this.undoAction();
+          }
+          break;
+
         default:
+          if (e.code.slice(0, 3) === "Key") {
+            // letter key?
+            output.value = e.code.slice(3);
+            break;
+          } else {
+            // modifiers, function keys etc?
+          }
+          return;
       }
       /** if some cells are selected, enter value based on modifier */
-      // if > 0 cells selected
-      if (this.cells.some(c => c.selected)) {
-        // for each cell
-        this.cells.forEach(c => {
-          if (c.selected) {
-            if (e.code === "Delete") {
-              c.value = null;
-              c.notesTop = [];
-              c.notesMid = [];
-              c.bgColor = null;
-              c.selected = false;
-              c.error = false;
-            } else if (output.shift && !output.ctrl) {
-              // notesTop: +shift, -ctrl
-              c.notesTop = toggleKey(c.notesTop, output.value);
-            } else if (output.ctrl && !output.shift) {
-              // notesMid: -shift, +ctrl
-              c.notesMid = toggleKey(c.notesMid, output.value);
-            } else if (!c.fixed && !output.ctrl && !output.shift) {
-              // value: -shift, -ctrl
-              c.value = output.key;
-            } else {
-              // this applies to every cell
-              console.log("what is this key combination?", output, c);
-            }
-          }
-        });
+      // sends the below array to the store as a user action
+      let selected = this.currentState.filter(c =>
+        this.selectedCells.includes(c.index)
+      );
+      selected.forEach(c => {
+        if (isNaN(c.index)) {
+          console.log("index error: ", c);
+        }
+        if (c.fixed) {
+          // cell is fixed by puzzle, do nothing
+          return;
+        }
+        if (e.code === "Delete") {
+          // Delete contents of the cell
+          c.value = null;
+          c.notesTop = [];
+          c.notesMid = [];
+          c.bgColor = null;
+          c.error = false;
+        } else if (output.shift && !output.ctrl) {
+          // Add/remove keystroke to notesTop: +shift, -ctrl
+          c.notesTop = toggleKey(c.notesTop, output.value);
+        } else if (output.ctrl && !output.shift) {
+          // Add/remove keystroke to notesMid: -shift, +ctrl
+          c.notesMid = toggleKey(c.notesMid, output.value);
+          // !IMPORTANT: prevent default here to stop control changing tabs etc...
+          e.preventDefault();
+        } else if (!output.ctrl && !output.shift) {
+          // Use keystroke for cell value: -shift, -ctrl
+          c.value = output.key;
+        } else {
+          // this applies to every selected cell
+          console.log("what is this key combination?", output, c);
+        }
+        // }
+      });
+      // send action containing array of modified cells
+      this.newAction(selected);
+    },
+    handleDragAdd(obj) {
+      this.cursorCell = obj;
+      if (!Object.keys(this.dragSelectionObj).includes(obj.index)) {
+        this.selectedCells.push(Number.parseInt(obj.index));
+        this.$set(this.dragSelectionObj, obj.index, obj);
       }
     },
-    clearAllSelections(prop = "selected") {
+    handleDragEnd() {
+      // console.log("drag ended", obj);
+      this.dragSelectionObj = Object.assign({});
+    },
+    clearAllSelections(prop = "all") {
       // clear all selection highlighting from cells
-      this.cells.forEach(cell => {
-        cell[prop] = false;
-      });
+      switch (prop) {
+        case "selected":
+          this.selectedCells = [];
+          break;
+        case "highlighted":
+          this.highlightedCells = [];
+          break;
+        case "cursor":
+          this.cursorIndexArray = [];
+          break;
+        case "all":
+          this.selectedCells = [];
+          this.highlightedCells = [];
+          this.cursorIndexArray = [];
+          break;
+        default:
+          return;
+      }
     },
     clearAllErrors() {
       this.cells.forEach(cell => {
@@ -408,7 +520,6 @@ export default {
           cell.notesTop = [];
           cell.notesMid = [];
           cell.bgColor = null;
-          cell.selected = false;
           cell.error = false;
         }
       });

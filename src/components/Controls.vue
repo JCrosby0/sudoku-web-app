@@ -1,141 +1,50 @@
 <template>
   <div class="left rules-container">
-    <div class="rules">
-      <h4>Rules:</h4>
-      <ul class="left">
-        <li v-for="(rule, i) in rules" :key="'rule' + i">{{ rule }}</li>
-      </ul>
-    </div>
     <div class="controls">
-      <h4>Controls:</h4>
-      <ul>
-        <li v-for="(control, i) in controls" :key="'control' + i">
-          {{ control }}
-        </li>
-      </ul>
-      <el-button-group>
-        <el-button type="primary" plain @click="DEVdummyData"
-          >[Dev] Test Data</el-button
+      <h4 class="title">Controls:</h4>
+      <div class="button-array">
+        <div v-for="digit in 9" :key="digit" class="button-spacing">
+          <el-button class="button" type="primary">{{ digit }}</el-button>
+        </div>
+        <div class="button-bottom">
+          <el-button class="button">Delete</el-button>
+          <el-button class="button">Color</el-button>
+        </div>
+      </div>
+      <el-button-group class="toggles">
+        <el-button
+          v-for="toggle in toggles"
+          :key="toggle"
+          :type="currentToggle === toggle && 'primary'"
+          @click="handleToggle(toggle)"
+          >{{ toggle }}</el-button
         >
-      </el-button-group>
-      <el-button-group>
-        <el-button type="primary" plain @click="savePuzzle"
-          >Save State</el-button
-        >
-        <el-button type="primary" plain @click="loadPuzzle"
-          >Load State</el-button
-        >
-      </el-button-group>
-      <el-button-group>
-        <el-button type="success" plain @click="checkPuzzle">Check</el-button>
-        <el-button v-if="setMode" type="warning" plain @click="setPuzzle"
-          >Set</el-button
-        >
-        <el-button type="danger" :plain="!showWarning" @click="resetPuzzle">{{
-          warningText
-        }}</el-button>
       </el-button-group>
     </div>
   </div>
 </template>
 
 <script>
-const emptyCellArray = require("../assets/dummyData");
-import { mapActions } from "vuex";
 export default {
   name: "Controls",
-  props: {
-    rules: {
-      required: false,
-      type: Array,
-      default: () => {
-        return ["Normal Sudoku rules apply"];
-      }
-    }
-  },
   data() {
     return {
-      emptyCellArray: emptyCellArray,
-      showWarning: false,
-      warningText: "Reset",
-      setMode: true,
-      controls: [
-        "Value: Click cell & type",
-        "Top Notes: Click cell, hold Shift and type",
-        "Central Notes: Click cell, hold Ctrl and type",
-        "Highlighting: Hold Alt and click cell"
-      ]
+      toggles: ["Normal", "Top", "Mid"],
+      currentToggle: "Normal"
     };
   },
   methods: {
-    ...mapActions([
-      "newAction",
-      "saveProgress",
-      "restoreProgress",
-      "setPuzzle",
-      "resetPuzzle"
-    ]),
-    DEVdummyData() {
-      const payload = this.emptyCellArray;
-      this.newAction(payload);
-    },
-    checkPuzzle() {
-      // TODO: Puzzle check logic
-      // test if puzzle is correct, then:
-      const pass = false;
-      if (pass) {
-        this.$message({
-          message: "Looks good to me!",
-          type: "success"
-        });
-      } else {
-        this.$message({
-          message: "Something's not quite right...",
-          type: "error"
-        });
-      }
-    },
-    savePuzzle() {
-      this.saveProgress();
-    },
-    loadPuzzle() {
-      this.restoreProgress();
-    },
-    setPuzzle() {
-      this.$confirm("Is the puzzle ready to go?", "Warning").then(() => {
-        this.setMode = false;
-        // fire action to initialise puzzle
-        this.setPuzzle;
-      });
-    },
-    resetPuzzle() {
-      const toggleWarning = (force = null) => {
-        if (force !== null) {
-          this.showWarning = force;
-        } else {
-          this.showWarning = !this.showWarning;
-        }
-        this.warningText = this.showWarning ? "Confirm?" : "Reset";
-      };
-      let warningTimeOut;
-      if (!this.showWarning) {
-        // provide confirmation click
-        toggleWarning(true);
-        warningTimeOut = setTimeout(toggleWarning, 3000);
-      } else {
-        // fire action to reset puzzle
-        this.resetPuzzle;
-        clearTimeout(warningTimeOut);
-        this.$message("Puzzle reset").then(() => {
-          toggleWarning(false);
-        });
-      }
+    handleToggle(t) {
+      this.currentToggle = t;
     }
   }
 };
 </script>
 
 <style>
+.title {
+  text-align: left;
+}
 .rules-container {
   height: 100%;
   display: flex;
@@ -153,9 +62,31 @@ export default {
   text-align: left;
 }
 li {
-  list-style: none;
+  list-style: "-";
 }
 ul {
   padding-left: 0;
+}
+.button-array {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.button-spacing {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 12px;
+}
+.button-bottom {
+  flex: 1 1 75%;
+  text-align: center;
+  padding: 12px;
+}
+.toggles {
+  padding-top: 12px;
+}
+.controls {
+  text-align: center;
 }
 </style>

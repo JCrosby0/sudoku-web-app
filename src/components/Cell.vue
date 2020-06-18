@@ -5,9 +5,11 @@
     @dragstart="handleDrag"
     @mousedown="handleEvent"
     @dragleave="handleDrag"
+    @dragenter="handleDrag"
+    @dragend="handleDrag"
   >
-    <!-- @click="handleEvent" -->
     <!-- @dragover="handleDrag" -->
+    <!-- @click="handleEvent" -->
     <!-- @mousedown="handleEvent" -->
     <span :class="valueClassObj">
       {{ cellObj.value }}
@@ -25,6 +27,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "Cell",
   props: {
@@ -35,25 +38,32 @@ export default {
     cellId: {
       required: true,
       type: Number
-    },
-    cellObj: {
-      required: false,
-      type: Object,
-      default: () => {
-        return {
-          value: null,
-          notesTop: [],
-          notesMid: [],
-          bgColor: null,
-          bgImg: null,
-          selected: false,
-          fixed: false,
-          error: false
-        };
-      }
     }
+    // cellObj: {
+    //   required: false,
+    //   type: Object,
+    //   default: () => {
+    //     return {
+    //       value: null,
+    //       notesTop: [],
+    //       notesMid: [],
+    //       bgColor: null,
+    //       bgImg: null,
+    //       selected: false,
+    //       fixed: false,
+    //       error: false
+    //     };
+    //   }
+    // }
   },
   computed: {
+    ...mapGetters(["cellDescription"]),
+    cellObj() {
+      return this.cellDescription(this.cellIndex);
+    },
+    cellIndex() {
+      return this.rowId * 9 + this.cellId;
+    },
     notes() {
       return this.stringFromArray(this.cellObj.notesTop);
     },
@@ -80,10 +90,13 @@ export default {
       };
     },
     cellClassObj() {
+      const grid = this.$parent.$parent;
+
       return {
         outerCell: true,
-        selected: this.cellObj.selected,
-        cursor: this.cellObj.cursor,
+        selected: grid.selectedCells.includes(this.cellIndex),
+        highlighted: grid.highlightedCells.includes(this.cellIndex),
+        cursor: grid.cursorIndexArray.includes(this.cellIndex),
         topBorder: this.rowId % 3 == 0,
         bottomBorder: this.rowId % 3 == 2,
         leftBorder: this.cellId % 3 == 0,
@@ -93,11 +106,32 @@ export default {
   },
   methods: {
     handleEvent(e) {
-      console.log("event registered: ", e.type, e, this.rowId, this.cellId);
+      // console.log("event registered: ", e.type, e, this.rowId, this.cellId);
       this.handleCellClicked(e);
     },
     handleDrag(e) {
-      console.log("event registered: ", e.type, e, this.rowId, this.cellId);
+      const outObj = {
+        rowId: this.rowId,
+        cellId: this.cellId,
+        index: this.cellIndex,
+        value: this.cellObj.value,
+        event: e
+      };
+      switch (e.type) {
+        case "dragstart":
+        case "dragenter":
+        case "dragover":
+        case "dragleave":
+          this.$emit("emitDragAdd", outObj);
+          break;
+        case "dragend":
+          this.$emit("emitDragEnd", outObj);
+          break;
+        default:
+          console.log("what is this drag event: ", e.type);
+      }
+
+      // console.log("event registered: ", e.type, e, this.rowId, this.cellId);
       e.dataTransfer.effectAllowed = "none";
       e.dataTransfer.dropEffect = "none";
       if (e.shiftKey || e.ctrlKey) {
@@ -109,11 +143,12 @@ export default {
       const outObj = {
         rowId: this.rowId,
         cellId: this.cellId,
+        index: this.cellIndex,
         value: this.cellObj.value,
         qualifier: qualifier, // not needed?
         event: e
       };
-      this.$emit("cellClicked", outObj);
+      this.$emit("emitCellClicked", outObj);
     },
     handleKeyPress(e) {
       // console.log("e: ", e);
@@ -175,8 +210,11 @@ export default {
 .notesBot {
   bottom: -15%;
 }
+.highlighted {
+  background-color: rgb(221, 255, 187);
+}
 .selected {
-  background-color: #ffddbb;
+  background-color: rgb(255, 221, 187);
 }
 .cursor {
   background-color: lightsalmon;
