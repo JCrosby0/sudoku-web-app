@@ -1,6 +1,6 @@
 // with reference: https://medium.com/javascript-in-plain-english/how-to-deep-copy-objects-and-arrays-in-javascript-7c911359b089
 
-const deepCopyFunction = inObject => {
+const deepCopy = inObject => {
   let outObject, value, key;
 
   if (typeof inObject !== "object" || inObject === null) {
@@ -14,9 +14,9 @@ const deepCopyFunction = inObject => {
     value = inObject[key];
 
     // Recursively (deep) copy for nested objects, including arrays
-    outObject[key] = deepCopyFunction(value);
+    outObject[key] = deepCopy(value);
   }
 
   return outObject;
 };
-module.exports = { deepCopyFunction };
+module.exports = { deepCopy };

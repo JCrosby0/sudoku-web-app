@@ -13,8 +13,8 @@
           :key="'compRow' + i"
           :row-id="i"
           :style="styleGridRow"
-          class="grid-row"
           :settings="settings"
+          class="grid-row"
           @emitCellClicked="handleCellClicked"
           @emitDragAdd="handleDragAdd"
           @emitDragEnd="handleDragEnd"
@@ -45,14 +45,14 @@ export default {
         left: null,
         top: null
       },
-      selectedCells: [],
-      highlightedCells: [],
-      cursorIndexArray: [],
+      // selectedCells: [],
+      // highlightedCells: [],
+      // cursorIndexArray: [],
       dragSelectionObj: {}
     };
   },
   computed: {
-    ...mapGetters(["currentState"]),
+    ...mapGetters(["currentState", "selectedCells", "highlightedCells", "cursorIndex"]),
     dragSelection() {
       return Object.keys(this.dragSelectionObj);
     },
@@ -100,7 +100,19 @@ export default {
     window.removeEventListener("keydown", this.handleKeyDown, false);
   },
   methods: {
-    ...mapActions(["newAction", "undoAction", "redoAction", "setPuzzleSize"]),
+    ...mapActions([
+      "newAction",
+      "undoAction",
+      "redoAction",
+      "setPuzzleSize",
+      "highlightCell",
+      "clearHighlights",
+      "selectCell",
+      "deselectCell",
+      "clearSelection",
+      "setCursorIndex",
+      "clearCursorIndex"
+    ]),
     updateWindowSize() {
       const headerHeight = 60; // px
       const availHeight = window.innerHeight - headerHeight;
@@ -128,7 +140,6 @@ export default {
      * */
     handleClickOuter() {
       this.cursorCell = { rowId: null, cellId: null };
-      this.cursorIndexArray = [];
       this.clearAllSelections();
     },
     /**
@@ -169,8 +180,7 @@ export default {
               { rowId: row, cellId: cell },
               this.settings.puzzleSize
             );
-            console.log("index: ", index);
-            this.selectedCells.push(index);
+            this.selectCell(index);
           }
         }
       }
@@ -181,7 +191,7 @@ export default {
       if (obj.event.altKey && !obj.event.shiftKey && !obj.event.ctrlKey) {
         const size = this.settings.puzzleSize;
         // prep before looping through the grid
-        this.highlightedCells = [];
+        this.clearHighlights();
         const clickedRow = obj.rowId;
         const clickedCol = obj.cellId;
         const clickedBox =
@@ -205,48 +215,48 @@ export default {
             fn.boxFromIndex(c.index, size)
           );
         }
-        // apply highlighyt conditions to each cell in the grid
+        // apply highlight conditions to each cell in the grid
         this.currentState.forEach((cell, index) => {
           // row
           if (
             this.settings.highlightOptions.includes("Row") &&
             fn.rowFromIndex(index, size) == clickedRow
           ) {
-            this.highlightedCells.push(index);
+            this.highlightCell(index);
           }
           // col
           else if (
             this.settings.highlightOptions.includes("Column") &&
             fn.colFromIndex(index, size) == clickedCol
           ) {
-            this.highlightedCells.push(index);
+            this.highlightCell(index);
           }
           // box
           else if (
             this.settings.highlightOptions.includes("Box") &&
             fn.boxFromIndex(index, size) == clickedBox
           ) {
-            this.highlightedCells.push(index);
+            this.highlightCell(index);
           }
           // king
           else if (
             this.settings.highlightOptions.includes("Chess: King") &&
             fn.testKingCondition(index, clickedRow, clickedCol, size)
           ) {
-            this.highlightedCells.push(index);
+            this.highlightCell(index);
           } // queen
           else if (
             this.settings.highlightOptions.includes("Chess: Queen") &&
             fn.testQueenCondition(index, clickedRow, clickedCol, size)
           ) {
-            this.highlightedCells.push(index);
+            this.highlightCell(index);
           }
           // knight
           else if (
             this.settings.highlightOptions.includes("Chess: Knight") &&
             fn.testKnightCondition(index, clickedRow, clickedCol, size)
           ) {
-            this.highlightedCells.push(index);
+            this.highlightCell(index);
           }
           // value
           else if (
@@ -254,7 +264,7 @@ export default {
             (obj.value || obj.value === 0) &&
             cell.value === obj.value
           ) {
-            this.highlightedCells.push(index);
+            this.highlightCell(index);
           }
           // value + seen
           else if (
@@ -266,7 +276,7 @@ export default {
               colsWithValue.includes(fn.colFromIndex(index, size)) ||
               boxesWithValue.includes(fn.boxFromIndex(index, size))
             ) {
-              this.highlightedCells.push(index);
+              this.highlightCell(index);
             }
           }
         });
@@ -281,16 +291,16 @@ export default {
         // if this.selectedCells !include index && ctrl - add to selection
         // if this.selectedCells !include index && !ctrl - add to selection
         if (this.selectedCells.includes(index) && obj.event.ctrlKey) {
-          this.selectedCells = this.selectedCells.filter(c => c !== index);
+          this.deselectCell(index);
         } else if (!this.selectedCells.includes(index)) {
-          this.selectedCells.push(index);
+          this.selectCell(index);
         }
       }
       // done with functionality, prepare for next time
       // store cursor cell and set highlighting
       if (!obj.event.shiftKey) {
         this.cursorCell = { rowId: obj.rowId, cellId: obj.cellId };
-        this.cursorIndexArray = [index];
+        this.setCursorIndex(index);
       }
     },
     /**
@@ -303,7 +313,6 @@ export default {
      * - existing selection should be removed
      */
     handleKeyDown(e) {
-      // console.log("keyDownRegistered", e);
       let newCursorCell = {
         cellId: this.cursorCell.cellId,
         rowId: this.cursorCell.rowId
@@ -350,13 +359,13 @@ export default {
         // if no modifier, remove all selections
         this.clearAllSelections("selected");
       }
-      this.selectedCells.push(index);
+      this.selectCell(index);
       // remove the old cursor
       this.clearAllSelections("cursor");
       // set the new cursor highlighting
       // store for next use
       this.cursorCell = newCursorCell;
-      this.cursorIndexArray = [index];
+      this.setCursorIndex(index)
     },
     /**
      * * handleKeyPress
@@ -466,7 +475,8 @@ export default {
     handleDragAdd(obj) {
       this.cursorCell = obj;
       if (!Object.keys(this.dragSelectionObj).includes(obj.index)) {
-        this.selectedCells.push(Number.parseInt(obj.index));
+        this.selectCell(Number.parseInt(obj.index));
+        // this.selectedCells.push(Number.parseInt(obj.index));
         this.$set(this.dragSelectionObj, obj.index, obj);
       }
     },
@@ -478,18 +488,24 @@ export default {
       // clear all selection highlighting from cells
       switch (prop) {
         case "selected":
-          this.selectedCells = [];
+          // this.selectedCells = [];
+          this.clearSelection();
           break;
         case "highlighted":
-          this.highlightedCells = [];
+          // this.highlightedCells = [];
+          this.clearHighlights();
           break;
         case "cursor":
-          this.cursorIndexArray = [];
+          this.clearCursorIndex();
+          // this.cursorIndexArray = [];
           break;
         case "all":
-          this.selectedCells = [];
-          this.highlightedCells = [];
-          this.cursorIndexArray = [];
+          this.clearSelection();
+          this.clearHighlights();
+          this.clearCursorIndex();
+          // this.selectedCells = [];
+          // this.highlightedCells = [];
+          // this.cursorIndexArray = [];
           break;
         default:
           return;

@@ -78,6 +78,22 @@ describe("Cell Interactivity", () => {
     cy.get("body").type("{shift}9");
     cy.get("#r0c8").should("contain", "789");
   });
+  it("Can undo and redo input", () => {
+    cy.get("#r3c3").click();
+    cy.get("body").type("1");
+    cy.get("#r4c4").click();
+    cy.get("body").type("2");
+    cy.get("#r5c5").click();
+    cy.get("body").type("3");
+    // undo with keyboard shortcut
+    cy.get("body").type("{ctrl}z");
+    // undo with on screen button
+    cy.contains("Undo").click();
+    // redo with keyboard shortcut
+    cy.get("body").type("{ctrl}y");
+    // redo with on screen button
+    cy.contains("Redo").click();
+  });
   it("Highlights cells when clicked with alt", () => {
     cy.get("body").type("{alt}", {
       release: false

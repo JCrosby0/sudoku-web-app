@@ -6,6 +6,7 @@
         <li>Size of grid</li>
         <el-slider
           v-model="settings.puzzleSize"
+          data-cy="puzzleSize"
           show-input
           show-steps
           :min="1"
@@ -14,6 +15,7 @@
         <li>Border cells</li>
         <el-slider
           v-model="settings.borderRows"
+          data-cy="borderRows"
           show-input
           show-steps
           :min="0"
@@ -23,6 +25,7 @@
         Box Size - Horizontal
         <el-slider
           v-model="settings.boxSizeHor"
+          data-cy="boxSizeHor"
           show-input
           show-steps
           :min="2"
@@ -31,6 +34,7 @@
         Box Size - Vertical
         <el-slider
           v-model="settings.boxSizeVer"
+          data-cy="boxSizeVer"
           show-input
           show-steps
           :min="2"

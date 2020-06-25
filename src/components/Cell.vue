@@ -49,7 +49,12 @@ export default {
     return { fn: fn };
   },
   computed: {
-    ...mapGetters(["cellDescription"]),
+    ...mapGetters([
+      "cellDescription",
+      "selectedCells",
+      "highlightedCells",
+      "cursorIndex"
+    ]),
     cellIndex() {
       return this.rowId * this.settings.puzzleSize + this.cellId;
     },
@@ -81,12 +86,11 @@ export default {
       };
     },
     cellClassObj() {
-      const grid = this.$parent.$parent;
       return {
         outerCell: true,
-        selected: grid.selectedCells.includes(this.cellIndex),
-        highlighted: grid.highlightedCells.includes(this.cellIndex),
-        cursor: grid.cursorIndexArray.includes(this.cellIndex),
+        selected: this.selectedCells.includes(this.cellIndex),
+        highlighted: this.highlightedCells.includes(this.cellIndex),
+        cursor: this.cursorIndex.includes(this.cellIndex),
         topBorder: this.rowId % this.settings.boxSizeVer == 0,
         bottomBorder:
           this.rowId % this.settings.boxSizeVer == this.settings.boxSizeVer - 1,

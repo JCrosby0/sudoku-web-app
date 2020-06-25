@@ -1,4 +1,4 @@
-import { deepCopyFunction } from "../../plugins/jsConvenience";
+import { deepCopy } from "../../plugins/jsConvenience";
 export default {
   getters: {
     undoStackSize: state => {
@@ -31,7 +31,7 @@ export default {
        * start with empty cell array, look up position of everything in actionStack and place in appropriate index?
        *
        */
-      let current = deepCopyFunction(state.emptyCellArray);
+      let current = deepCopy(state.emptyCellArray);
       if (state.actionStack.length == 0) return current;
       state.actionStack.forEach(action => {
         // an action will be an array of cell modifications

@@ -4,7 +4,12 @@
       <h4 class="title">Controls:</h4>
       <div class="button-array">
         <div v-for="digit in 9" :key="digit" class="button-spacing">
-          <el-button class="button" type="primary">{{ digit }}</el-button>
+          <el-button
+            class="button"
+            type="primary"
+            @click="simulateKeyDown(digit)"
+            >{{ digit }}</el-button
+          >
         </div>
         <div class="button-bottom">
           <el-button class="button">Delete</el-button>
@@ -36,6 +41,30 @@ export default {
   methods: {
     handleToggle(t) {
       this.currentToggle = t;
+    },
+    simulateKeyDown(digit) {
+      console.log("digit: ", digit);
+      const keyCode = "Digit" + digit;
+      console.log("keyCode: ", keyCode);
+      var keyboardEvent = document.createEvent("KeyboardEvent");
+      var initMethod =
+        typeof keyboardEvent.initKeyboardEvent !== "undefined"
+          ? "initKeyboardEvent"
+          : "initKeyEvent";
+
+      keyboardEvent[initMethod](
+        "keydown", // event type: keydown, keyup, keypress
+        true, // bubbles
+        true, // cancelable
+        window, // view: should be window
+        false, // ctrlKey
+        false, // altKey
+        false, // shiftKey
+        false, // metaKey
+        keyCode, // keyCode: unsigned long - the virtual key code, else 0
+        0 // charCode: unsigned long - the Unicode character associated with the depressed key, else 0
+      );
+      document.dispatchEvent(keyboardEvent);
     }
   }
 };
