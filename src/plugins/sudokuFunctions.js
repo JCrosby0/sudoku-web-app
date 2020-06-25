@@ -14,9 +14,6 @@ const boxFromIndex = (index, size) =>
   3 * Math.floor(rowFromIndex(index, size) / 3);
 
 const indexFromCoords = (cell, size) => {
-  console.log("size: ", size);
-  console.log("cell: ", cell);
-
   return cell.rowId * size + cell.cellId;
 };
 // Chess Constraints

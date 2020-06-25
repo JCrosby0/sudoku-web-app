@@ -1,3 +1,4 @@
+import { deepCopyFunction } from "../../plugins/jsConvenience";
 export default {
   getters: {
     undoStackSize: state => {
@@ -30,13 +31,8 @@ export default {
        * start with empty cell array, look up position of everything in actionStack and place in appropriate index?
        *
        */
-      console.log("currentState fired");
-      let current = [...state.emptyCellArray];
+      let current = deepCopyFunction(state.emptyCellArray);
       if (state.actionStack.length == 0) return current;
-      console.log(
-        "recomputing with action stack length: ",
-        state.actionStack.length
-      );
       state.actionStack.forEach(action => {
         // an action will be an array of cell modifications
         if (!action) {
@@ -53,6 +49,7 @@ export default {
               cellDescription.rowId &&
               cellDescription.cellId
             ) {
+              alert("cellDescription doesn`t have index...");
               index = cellDescription.rowId * 9 + cellDescription.cellId; // TODO flexible grid size
               cellDescription.index = index; // store it in the stack
               console.log("cell didnt have index: ", index);
@@ -94,37 +91,13 @@ export default {
       if (state.actionStack.length) {
         const last = [...state.actionStack.pop()];
         state.redoStack.push([...last]);
-        // console.log(
-        //   "state.actionStack: ",
-        //   state.actionStack,
-        //   state.actionStack.length
-        // );
-        // console.log("undo last: ", last);
-        // console.log(
-        //   "state.redoStack: ",
-        //   state.redoStack,
-        //   state.redoStack.length
-        // );
       }
       return;
-      // const last = state.actionStack.pop();
-      // state.redoStack.push(state.actionStack.pop());
     },
     REDO_ACTION(state) {
       if (state.redoStack.length) {
         const last = [...state.redoStack.pop()];
         state.actionStack.push([...last]);
-        // console.log(
-        //   "state.actionStack: ",
-        //   state.actionStack,
-        //   state.actionStack.length
-        // );
-        // console.log("redo last: ", last);
-        // console.log(
-        //   "state.redoStack: ",
-        //   state.redoStack,
-        //   state.redoStack.length
-        // );
       }
       return;
     },
@@ -168,11 +141,11 @@ export default {
     },
     undoAction({ commit }) {
       console.log(this);
-      this._vm.$message("Undo Fired");
+      // this._vm.$message("Undo Fired");
       commit("UNDO_ACTION");
     },
     redoAction({ commit }) {
-      this._vm.$message("Redo Fired");
+      // this._vm.$message("Redo Fired");
       commit("REDO_ACTION");
     },
     saveProgress({ commit, getters }) {

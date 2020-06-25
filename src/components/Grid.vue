@@ -2,7 +2,7 @@
   <div class="grid-main">
     <div
       id="gridOuter"
-      :key="gridOuter"
+      key="gridOuter"
       :style="styleGridOuter"
       class="grid-outer"
       @click.self="handleClickOuter"
@@ -401,12 +401,14 @@ export default {
         case "KeyY":
           if (output.ctrl && e.code == "KeyY") {
             this.redoAction();
+            return;
           }
           break;
         case "KeyZ":
           if (output.ctrl && e.code == "KeyZ") {
             //undo function
             this.undoAction();
+            return;
           }
           break;
 
