@@ -1,41 +1,53 @@
 <template>
   <el-header class="header">
     <h2 class="title">JC's Sudoku Grid</h2>
-    <!-- prettier-ignore -->
     <div class="menu">
       <el-button
-        id="navInput"
-        type="primary"
-        plain
+        v-for="menu in menuArray"
+        :id="menu.id"
+        :key="menu.id"
+        :type="activeTab === menu.toggle ? 'primary' : 'info'"
         round
-        icon="el-icon-edit"
-        @click="toggle('controls')"
-      >Input</el-button>
-      <el-button
-        id="navRules"
-        type="primary"
-        plain
-        round
-        icon="el-icon-collection"
-        @click="toggle('rules')"
-      >Rules</el-button>
-      <el-button
-        id="navSettings"
-        type="primary"
-        plain
-        round
-        icon="el-icon-menu"
-        @click="toggle('settings')"
-      >Settings</el-button>
+        :icon="menu.icon"
+        @click="toggle(menu.toggle)"
+      >
+        {{ menu.label }}
+      </el-button>
     </div>
   </el-header>
 </template>
 
 <script>
+const menuArray = [
+  { id: "navSet", icon: "el-icon-edit-outline", toggle: "set", label: "Set" },
+  { id: "navInput", icon: "el-icon-edit", toggle: "controls", label: "Solve" },
+  {
+    id: "navRules",
+    icon: "el-icon-collection",
+    toggle: "rules",
+    label: "Rules"
+  },
+  {
+    id: "navSettings",
+    icon: "el-icon-menu",
+    toggle: "settings",
+    label: "Settings"
+  }
+];
 export default {
   name: "NavBar",
+  data() {
+    return {
+      activeTab: null,
+      menuArray: menuArray
+    };
+  },
   methods: {
     toggle(panel = "settings") {
+      // set active tab for button highlighting
+      if (panel !== "settings") {
+        this.activeTab = panel === this.activeTab ? "none" : panel;
+      }
       this.$emit("toggle", panel);
     }
   }

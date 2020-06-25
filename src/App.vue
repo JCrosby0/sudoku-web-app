@@ -15,6 +15,12 @@
       <el-aside v-show="showControls">
         <Controls />
       </el-aside>
+      <el-aside v-show="showSet">
+        <PuzzleSet
+          :settings="settings"
+          @updateSettings="handleSettingsFromSet"
+        />
+      </el-aside>
     </el-container>
   </div>
 </template>
@@ -24,9 +30,14 @@ import NavBar from "./components/NavBar.vue";
 import Grid from "./components/Grid.vue";
 import Controls from "./components/Controls.vue";
 import Rules from "./components/Rules.vue";
+import PuzzleSet from "./components/PuzzleSet.vue";
 import SettingsDrawer from "./components/SettingsDrawer.vue";
 
 const defaultSettings = {
+  puzzleSize: 9,
+  borderRows: 2,
+  boxSizeHor: 3,
+  boxSizeVer: 3,
   selectOptions: [],
   highlightOptions: ["Row", "Column", "Box", "Number"]
 };
@@ -38,7 +49,8 @@ export default {
     Grid,
     SettingsDrawer,
     Controls,
-    Rules
+    Rules,
+    PuzzleSet
   },
   mounted() {
     this.settings = Object.assign({}, defaultSettings);
@@ -48,7 +60,8 @@ export default {
       settings: {},
       showSettings: false,
       showRules: true,
-      showControls: false
+      showControls: false,
+      showSet: false
     };
   },
   methods: {
@@ -59,11 +72,20 @@ export default {
       }
       this.handleToggle("settings");
     },
+    handleSettingsFromSet(obj) {
+      this.settings = Object.assign({}, this.settings, obj);
+    },
     handleToggle(type) {
       switch (type) {
+        case "set":
+          this.showSet = !this.showSet;
+          this.showRules = false;
+          this.showControls = false;
+          break;
         case "controls":
           this.showControls = !this.showControls;
           this.showRules = false;
+          this.showSet = false;
           break;
         case "settings":
           this.showSettings = !this.showSettings;
@@ -71,6 +93,7 @@ export default {
         case "rules":
           this.showRules = !this.showRules;
           this.showControls = false;
+          this.showSet = false;
           break;
         default:
       }
@@ -108,5 +131,8 @@ body {
 }
 .title {
   padding-left: 24px;
+}
+.left {
+  text-align: left;
 }
 </style>

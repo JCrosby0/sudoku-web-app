@@ -39,34 +39,22 @@ export default {
     cellId: {
       required: true,
       type: Number
+    },
+    settings: {
+      required: true,
+      type: Object
     }
-    // cellObj: {
-    //   required: false,
-    //   type: Object,
-    //   default: () => {
-    //     return {
-    //       value: null,
-    //       notesTop: [],
-    //       notesMid: [],
-    //       bgColor: null,
-    //       bgImg: null,
-    //       selected: false,
-    //       fixed: false,
-    //       error: false
-    //     };
-    //   }
-    // }
   },
   data() {
     return { fn: fn };
   },
   computed: {
     ...mapGetters(["cellDescription"]),
+    cellIndex() {
+      return this.rowId * this.settings.puzzleSize + this.cellId;
+    },
     cellObj() {
       return this.cellDescription(this.cellIndex);
-    },
-    cellIndex() {
-      return this.rowId * 9 + this.cellId;
     },
     notes() {
       return this.stringFromArray(this.cellObj.notesTop);
@@ -79,7 +67,6 @@ export default {
     },
     notesBot() {
       return this.notes.length > 5 ? this.notes.slice(5) : null;
-      // return this.stringFromArray(this.cellObj.notesTop).slice(3, 3);
     },
     valueColor() {
       if (this.cellObj.fixed) return "blue";
@@ -95,16 +82,17 @@ export default {
     },
     cellClassObj() {
       const grid = this.$parent.$parent;
-
       return {
         outerCell: true,
         selected: grid.selectedCells.includes(this.cellIndex),
         highlighted: grid.highlightedCells.includes(this.cellIndex),
         cursor: grid.cursorIndexArray.includes(this.cellIndex),
-        topBorder: this.rowId % 3 == 0,
-        bottomBorder: this.rowId % 3 == 2,
-        leftBorder: this.cellId % 3 == 0,
-        rightBorder: this.cellId % 3 == 2
+        topBorder: this.rowId % this.settings.boxSizeVer == 0,
+        bottomBorder:
+          this.rowId % this.settings.boxSizeVer == this.settings.boxSizeVer - 1,
+        leftBorder: this.cellId % this.settings.boxSizeHor == 0,
+        rightBorder:
+          this.cellId % this.settings.boxSizeHor == this.settings.boxSizeHor - 1
       };
     }
   },

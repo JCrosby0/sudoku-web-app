@@ -4,15 +4,23 @@ describe("Basic Layout", () => {
   it("Contains the Nav Bar", () => {
     cy.visit("/");
     cy.contains("h2", "JC's Sudoku Grid");
-    cy.contains("Input");
+    cy.contains("Set");
+    cy.contains("Solve");
     cy.contains("Rules");
     cy.contains("Settings");
   });
+  it("Toggles the Set Tab", () => {
+    cy.get("#set-container").should("not.be.visible");
+    cy.get("#navSet").click();
+    cy.get("#set-container").should("be.visible");
+    cy.get("#navSet").click();
+    cy.get("#set-container").should("not.be.visible");
+  });
   it("Toggles the Input Tab", () => {
     cy.get("#controls-container").should("not.be.visible");
-    cy.contains("Input").click();
+    cy.contains("Solve").click();
     cy.get("#controls-container").should("be.visible");
-    cy.contains("Input").click();
+    cy.contains("Solve").click();
     cy.get("#controls-container").should("not.be.visible");
   });
   it("Toggles the Rules Tab", () => {

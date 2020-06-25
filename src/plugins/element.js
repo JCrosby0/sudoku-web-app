@@ -14,7 +14,8 @@ import {
   Loading,
   Message,
   MessageBox,
-  Notification
+  Notification,
+  Slider
 } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -32,6 +33,7 @@ Vue.use(Checkbox);
 Vue.use(CheckboxGroup);
 Vue.use(Form);
 Vue.use(FormItem);
+Vue.use(Slider);
 
 Vue.use(Loading.directive);
 

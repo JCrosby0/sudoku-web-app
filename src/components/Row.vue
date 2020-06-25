@@ -1,11 +1,12 @@
 <template>
   <div class="outerRow">
     <Cell
-      v-for="(cell, i) in 9"
+      v-for="(cell, i) in settings.puzzleSize"
       :key="'compRow' + rowId + 'cell' + i"
       :row-id="rowId"
       :cell-id="i"
       class="cell"
+      :settings="settings"
       @emitCellClicked="handleCellClicked"
       @emitDragAdd="handleDragAdd"
       @emitDragEnd="handleDragEnd"
@@ -24,11 +25,11 @@ export default {
     rowId: {
       required: true,
       type: Number
+    },
+    settings: {
+      required: true,
+      type: Object
     }
-    // cells: {
-    //   required: true,
-    //   type: Array
-    // }
   },
   methods: {
     handleCellClicked(obj) {
