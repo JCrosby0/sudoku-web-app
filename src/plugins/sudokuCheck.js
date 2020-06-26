@@ -6,26 +6,26 @@ const testUniqueLength = (array) => {
 
 const testFullArray = (array) => {
   if (array.length !== 81) {
-    alert('Unable to check non-standard sudoku grid');
+    console.warn('Unable to check non-standard sudoku grid, array length: ' + array.length);
     return false
   }
   return true
 }
 // turn full array into an array of rows
 const rows = (array) => {
-  console.log('preparing rows for testing');
-  if (!testFullArray(array)) return false;
-  const rowArray = []
-  while (array.length) {
-    rowArray.push(array.splice(0, 9))
-  }
+  const test = testFullArray(array)
+  if (!test) return false;
+  const rowArray = new Array(9).fill([]);
+  array.forEach((c, i) => {
+    rowArray[fn.rowFromIndex(i, 9)].push(c)
+  })
   return rowArray
 };
 
 // turn full array into an array of cols
 const cols = (array) => {
-  console.log('preparing cols for testing');
-  if (!testFullArray(array)) return false;
+  const test = testFullArray(array)
+  if (!test) return false;
   const colArray = new Array(9).fill([]);
   array.forEach((c, i) => {
     colArray[fn.colFromIndex(i, 9)].push(c)
@@ -33,8 +33,8 @@ const cols = (array) => {
   return colArray
 };
 const boxes = (array) => {
-  console.log('preparing boxes for testing');
-  if (!testFullArray(array)) return false;
+  const test = testFullArray(array)
+  if (!test) return false;
   const boxArray = new Array(9).fill([]);
   array.forEach((c, i) => {
     boxArray[fn.boxFromIndex(i, 9)].push(c)
@@ -42,13 +42,17 @@ const boxes = (array) => {
   return boxArray
 };
 const diagonals = (array) => {
-  console.log('preparing diagonals for testing');
-  if (!testFullArray(array)) return false;
-  const diagArray = new Array(2).fill([]);
+  const test = testFullArray(array)
+  if (!test) return false;
+  const diagArray = [
+    [],
+    []
+  ];
   array.forEach((c, i) => {
-    if (i != 0 && i % 8 == 0) {
+    if (i !== 0 && i !== 80 && i % 8 === 0) {
       diagArray[0].push(c)
-    } else if (i % 10 == 0) {
+    }
+    if (i % 10 === 0) {
       diagArray[1].push(c)
     }
   })

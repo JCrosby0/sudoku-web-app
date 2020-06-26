@@ -98,7 +98,9 @@ export default {
       ]
     };
   },
-  computed: { ...mapGetters(["redoStackSize", "undoStackSize"]) },
+  computed: {
+    ...mapGetters(["redoStackSize", "undoStackSize", "currentState"])
+  },
   methods: {
     ...mapActions([
       "newAction",
@@ -115,7 +117,6 @@ export default {
       this.newAction(payload);
     },
     checkPuzzle() {
-      // TODO: Puzzle check logic
       const testConfig = [
         { active: true, test: chk.rows },
         { active: true, test: chk.cols },
@@ -123,11 +124,17 @@ export default {
         { active: true, test: chk.diagonals }
       ];
       const tests = [];
+      const vals = this.currentState.map(c => Number.parseInt(c.value));
       testConfig.forEach(testCase => {
-        testCase.active &&
-          tests.push(
-            testCase.test(this.currentState).every(n => chk.testUniqueLength(n))
-          );
+        if (testCase.active) {
+          const result = testCase.test(vals);
+          if (result) {
+            const valid = result.every(r => chk.testUniqueLength(r));
+            tests.push(valid);
+          } else {
+            tests.push(result);
+          }
+        }
       });
       if (tests.length == 0) {
         this.$message({
