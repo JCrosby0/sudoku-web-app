@@ -24,36 +24,43 @@
         >
       </el-button-group>
       <!-- DEV INSERT DUMMY DATA -->
-      <el-button-group>
-        <el-button type="primary" plain @click="DEVdummyData"
-          >[Dev] Test Data</el-button
-        >
-      </el-button-group>
+      <!-- <el-button-group> -->
+      <el-button type="primary" plain data-cy="Test" @click="DEVdummyData"
+        >Test Data</el-button
+      >
+      <!-- </el-button-group> -->
       <!-- SAVE & RESTORE PUZZLE -->
       <el-button-group>
-        <el-button type="primary" plain @click="savePuzzle"
-        >[NYI]Save State</el-button
+        <el-button type="primary" plain data-cy="Save" @click="savePuzzle"
+          >Save</el-button
         >
-        <el-button type="primary" plain @click="loadPuzzle"
-          >[NYI]Load State</el-button
+        <el-button type="primary" plain data-cy="Load" @click="loadPuzzle"
+          >Load</el-button
         >
       </el-button-group>
       <!-- CHECK, SET AND RESET PUZZLE -->
       <el-button-group>
-        <el-button type="success" plain @click="checkPuzzle">[NYI]Check</el-button>
+        <el-button type="success" plain @click="checkPuzzle"
+          >[NYI]Check</el-button
+        >
         <el-button v-if="setMode" type="warning" plain @click="setPuzzle"
           >[NYI]Set</el-button
         >
-        <el-button type="danger" :plain="!showWarning" @click="resetPuzzle">{{
-          warningText
-        }}</el-button>
+        <el-button
+          type="danger"
+          :plain="!showWarning"
+          data-cy="Reset"
+          @click="confirmResetPuzzle"
+          >{{ warningText }}</el-button
+        >
       </el-button-group>
     </div>
   </div>
 </template>
 
 <script>
-const emptyCellArray = require("../assets/dummyData");
+const dummyCellArray = require("../assets/dummyData");
+import * as chk from "../plugins/sudokuCheck.js";
 import { mapActions, mapGetters } from "vuex";
 export default {
   name: "Rules",
@@ -79,7 +86,7 @@ export default {
   },
   data() {
     return {
-      emptyCellArray: emptyCellArray,
+      dummyCellArray: dummyCellArray,
       showWarning: false,
       warningText: "Reset",
       setMode: true,
@@ -103,14 +110,31 @@ export default {
       "redoAction"
     ]),
     DEVdummyData() {
-      const payload = this.emptyCellArray;
+      const payload = this.dummyCellArray;
+      console.log("payload: ", payload);
       this.newAction(payload);
     },
     checkPuzzle() {
       // TODO: Puzzle check logic
-      // test if puzzle is correct, then:
-      const pass = false;
-      if (pass) {
+      const testConfig = [
+        { active: true, test: chk.rows },
+        { active: true, test: chk.cols },
+        { active: true, test: chk.boxes },
+        { active: true, test: chk.diagonals }
+      ];
+      const tests = [];
+      testConfig.forEach(testCase => {
+        testCase.active &&
+          tests.push(
+            testCase.test(this.currentState).every(n => chk.testUniqueLength(n))
+          );
+      });
+      if (tests.length == 0) {
+        this.$message({
+          message: "No tests are selected...",
+          type: "warning"
+        });
+      } else if (tests.every(t => t)) {
         this.$message({
           message: "Looks good to me!",
           type: "success"
@@ -124,6 +148,7 @@ export default {
     },
     savePuzzle() {
       this.saveProgress();
+      this.$message("Puzzle saved");
     },
     loadPuzzle() {
       this.restoreProgress();
@@ -132,16 +157,13 @@ export default {
       this.$confirm("Is the puzzle ready to go?", "Warning").then(() => {
         this.setMode = false;
         // fire action to initialise puzzle
-        this.setPuzzle;
+        this.setPuzzle();
+        this.$message("Puzzle set");
       });
     },
-    resetPuzzle() {
+    confirmResetPuzzle() {
       const toggleWarning = (force = null) => {
-        if (force !== null) {
-          this.showWarning = force;
-        } else {
-          this.showWarning = !this.showWarning;
-        }
+        this.showWarning = force !== null ? force : !this.showWarning;
         this.warningText = this.showWarning ? "Confirm?" : "Reset";
       };
       let warningTimeOut;
@@ -151,11 +173,10 @@ export default {
         warningTimeOut = setTimeout(toggleWarning, 3000);
       } else {
         // fire action to reset puzzle
-        this.resetPuzzle;
+        this.resetPuzzle();
         clearTimeout(warningTimeOut);
-        this.$message("Puzzle reset").then(() => {
-          toggleWarning(false);
-        });
+        this.$message("Puzzle reset");
+        // toggleWarning(false);
       }
     }
   }

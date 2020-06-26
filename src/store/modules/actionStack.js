@@ -107,14 +107,14 @@ export default {
     },
     // this is available to the user
     GET_SAVED_STATE(state) {
-      state.actionState = [...state.savedState];
+      state.actionStack = state.savedState;
     },
     SET_SAVED_STATE(state, payload) {
       state.savedState = [payload];
     },
     // to reset the puzzle
     GET_INITIAL_STATE(state) {
-      state.actionState = [...state.initialState];
+      state.actionStack = [state.initialState];
     },
     // avaialable only to the puzzle setter
     SET_INITIAL_STATE(state, payload) {
@@ -187,6 +187,7 @@ export default {
     resetPuzzle({
       commit
     }) {
+      console.log('reset puzzle');
       commit("GET_INITIAL_STATE");
     }
   }
