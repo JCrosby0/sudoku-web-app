@@ -4,7 +4,7 @@ describe("Regions", () => {
     cy.get("#navSet").click();
     cy.get("[data-cy=puzzleSize]")
       .find("input")
-      .type("{backspace}")
+      .clear()
       .type("6")
       .type("{enter}");
     cy.get("#r8c8").should("not.exist");
@@ -13,7 +13,7 @@ describe("Regions", () => {
     // cy.get("#navSet").click();
     cy.get("[data-cy=boxSizeHor]")
       .find("input")
-      .type("{backspace}")
+      .clear()
       .type("2")
       .type("{enter}");
     cy.get("#r2c1")
@@ -21,7 +21,7 @@ describe("Regions", () => {
       .should("have.class", "rightBorder");
     cy.get("[data-cy=boxSizeVer]")
       .find("input")
-      .type("{backspace}")
+      .clear()
       .type("2")
       .type("{enter}");
     cy.get("#r1c1")
@@ -30,7 +30,7 @@ describe("Regions", () => {
     // cy.get("#navSet").click();
     cy.get("[data-cy=boxSizeHor]")
       .find("input")
-      .type("{backspace}")
+      .clear()
       .type("3")
       .type("{enter}");
     cy.get("#r1c2")
@@ -38,7 +38,7 @@ describe("Regions", () => {
       .should("have.class", "rightBorder");
     cy.get("[data-cy=boxSizeVer]")
       .find("input")
-      .type("{backspace}")
+      .clear()
       .type("3")
       .type("{enter}");
     cy.get("#r2c2")
@@ -47,7 +47,7 @@ describe("Regions", () => {
     // reset grid back to 9x9
     cy.get("[data-cy=puzzleSize]")
       .find("input")
-      .type("{backspace}")
+      .clear()
       .type("9")
       .type("{enter}");
     cy.get("#r8c8").should("exist");
@@ -59,7 +59,7 @@ describe("Regions", () => {
       .then(initialWidth => {
         cy.get("[data-cy=borderRows]")
           .find("input")
-          .type("{backspace}")
+          .clear()
           .type("0")
           .type("{enter}"); // reduce borderRows to 0
         // test
@@ -72,7 +72,7 @@ describe("Regions", () => {
       .then(changedWidth => {
         cy.get("[data-cy=borderRows]")
           .find("input")
-          .type("{backspace}")
+          .clear()
           .type("2")
           .type("{enter}"); // reduce borderRows to 0
         // test

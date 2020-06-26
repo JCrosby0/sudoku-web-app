@@ -1,4 +1,6 @@
-import { deepCopy } from "../../plugins/jsConvenience";
+import {
+  deepCopy
+} from "../../plugins/jsConvenience";
 export default {
   getters: {
     undoStackSize: state => {
@@ -39,7 +41,7 @@ export default {
           console.log("action -- action is falsey", action, action == false);
         }
         action && // action in the list, if there, consists of multiple cells being cahnged
-          action.forEach(cellDescription => {
+          action.forEach((cellDescription, i) => {
             // for each cell being changed
             let index; // test we have an index
             if (cellDescription.index || cellDescription.index === 0) {
@@ -50,11 +52,13 @@ export default {
               cellDescription.cellId
             ) {
               alert("cellDescription doesn`t have index...");
-              index = cellDescription.rowId * 9 + cellDescription.cellId; // TODO flexible grid size
+              // TODO flexible grid size
+              index = cellDescription.rowId * 9 + cellDescription.cellId;
               cellDescription.index = index; // store it in the stack
               console.log("cell didnt have index: ", index);
             } else {
-              console.log("No index avaialble");
+              // dummy data results here
+              index = i;
               return;
             }
             current[index] = cellDescription;
@@ -119,7 +123,9 @@ export default {
   },
 
   actions: {
-    setPuzzleSize({ commit }, payload) {
+    setPuzzleSize({
+      commit
+    }, payload) {
       // payload should be settings.puzzleSize
       let emptyCellArray = new Array(payload * payload).fill({});
       emptyCellArray.forEach((cell, i) => {
@@ -136,26 +142,40 @@ export default {
       });
       commit("SET_PUZZLE_SIZE", emptyCellArray);
     },
-    newAction({ commit }, payload) {
+    newAction({
+      commit
+    }, payload) {
       commit("NEW_ACTION", payload);
     },
-    undoAction({ commit }) {
+    undoAction({
+      commit
+    }) {
       console.log(this);
       // this._vm.$message("Undo Fired");
       commit("UNDO_ACTION");
     },
-    redoAction({ commit }) {
+    redoAction({
+      commit
+    }) {
       // this._vm.$message("Redo Fired");
       commit("REDO_ACTION");
     },
-    saveProgress({ commit, getters }) {
+    saveProgress({
+      commit,
+      getters
+    }) {
       const payload = getters.currentState;
       commit("SET_SAVED_STATE", payload);
     },
-    restoreProgress({ commit }) {
+    restoreProgress({
+      commit
+    }) {
       commit("GET_SAVED_STATE");
     },
-    setPuzzle({ commit, getters }) {
+    setPuzzle({
+      commit,
+      getters
+    }) {
       const payload = getters.currentState;
       payload.forEach(cell => {
         if (cell.value) {
@@ -164,7 +184,9 @@ export default {
       });
       commit("SET_INITIAL_STATE", payload);
     },
-    resetPuzzle({ commit }) {
+    resetPuzzle({
+      commit
+    }) {
       commit("GET_INITIAL_STATE");
     }
   }

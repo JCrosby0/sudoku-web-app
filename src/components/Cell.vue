@@ -2,16 +2,12 @@
   <div
     :id="'r' + rowId + 'c' + cellId"
     :class="cellClassObj"
-    @keyup="handleKeyPress"
     @dragstart="handleDrag"
     @mousedown="handleEvent"
     @dragleave="handleDrag"
     @dragenter="handleDrag"
     @dragend="handleDrag"
   >
-    <!-- @dragover="handleDrag" -->
-    <!-- @click="handleEvent" -->
-    <!-- @mousedown="handleEvent" -->
     <span :class="valueClassObj">{{ cellObj.value }}</span>
     <span v-show="cellObj.value === null" class="notesTop">{{ notesTop }}</span>
     <span v-show="cellObj.value === null" class="notesMid">{{ notesMid }}</span>
@@ -20,14 +16,6 @@
 </template>
 
 <script>
-/** TODO: find a reactive way to access grid cell options
-assign index and go to store?
-maybe a cell hydrator component that just 
-- takes index, 
-- gets from store and 
-- throws it into dumb cell?
-*/
-import * as fn from "../plugins/sudokuFunctions";
 import { mapGetters } from "vuex";
 export default {
   name: "Cell",
@@ -45,9 +33,6 @@ export default {
       type: Object
     }
   },
-  data() {
-    return { fn: fn };
-  },
   computed: {
     ...mapGetters([
       "cellDescription",
@@ -61,17 +46,15 @@ export default {
     cellObj() {
       return this.cellDescription(this.cellIndex);
     },
-    notes() {
-      return this.stringFromArray(this.cellObj.notesTop);
-    },
-    notesTop() {
-      return this.notes.slice(0, 5);
-    },
     notesMid() {
       return this.stringFromArray(this.cellObj.notesMid);
     },
+    notesTop() {
+      return this.stringFromArray(this.cellObj.notesTop).slice(0, 5);
+    },
     notesBot() {
-      return this.notes.length > 5 ? this.notes.slice(5) : null;
+      const notes = this.stringFromArray(this.cellObj.notesTop);
+      return notes.length > 5 ? notes.slice(5) : null;
     },
     valueColor() {
       if (this.cellObj.fixed) return "blue";
@@ -86,6 +69,9 @@ export default {
       };
     },
     cellClassObj() {
+      /**
+       * class based formatting of the cell
+       */
       return {
         outerCell: true,
         selected: this.selectedCells.includes(this.cellIndex),
@@ -102,7 +88,6 @@ export default {
   },
   methods: {
     handleEvent(e) {
-      // console.log("event registered: ", e.type, e, this.rowId, this.cellId);
       this.handleCellClicked(e);
     },
     handleDrag(e) {
@@ -146,10 +131,6 @@ export default {
       };
       this.$emit("emitCellClicked", outObj);
     },
-    handleKeyPress(e) {
-      // console.log("e: ", e);
-      e.dummy = 42;
-    },
     stringFromArray(arr) {
       let output = "";
       arr.forEach(a => (output += a));
@@ -166,7 +147,6 @@ export default {
   color: blue;
   background-color: #fefefe;
   height: 100%;
-  width: 100%;
   border: 1px black solid;
   box-sizing: border-box;
   position: relative;

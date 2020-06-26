@@ -32,17 +32,17 @@
       <!-- SAVE & RESTORE PUZZLE -->
       <el-button-group>
         <el-button type="primary" plain @click="savePuzzle"
-          >Save State</el-button
+        >[NYI]Save State</el-button
         >
         <el-button type="primary" plain @click="loadPuzzle"
-          >Load State</el-button
+          >[NYI]Load State</el-button
         >
       </el-button-group>
       <!-- CHECK, SET AND RESET PUZZLE -->
       <el-button-group>
-        <el-button type="success" plain @click="checkPuzzle">Check</el-button>
+        <el-button type="success" plain @click="checkPuzzle">[NYI]Check</el-button>
         <el-button v-if="setMode" type="warning" plain @click="setPuzzle"
-          >Set</el-button
+          >[NYI]Set</el-button
         >
         <el-button type="danger" :plain="!showWarning" @click="resetPuzzle">{{
           warningText

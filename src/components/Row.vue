@@ -5,8 +5,9 @@
       :key="'compRow' + rowId + 'cell' + i"
       :row-id="rowId"
       :cell-id="i"
-      class="cell"
       :settings="settings"
+      :style="styleCell"
+      class="cell"
       @emitCellClicked="handleCellClicked"
       @emitDragAdd="handleDragAdd"
       @emitDragEnd="handleDragEnd"
@@ -30,6 +31,13 @@ export default {
       required: true,
       type: Object
     }
+  },
+  computed: {
+    styleCell() {
+      return {
+        width: 100 / this.settings.gridSize + "%"
+      };
+    },
   },
   methods: {
     handleCellClicked(obj) {
@@ -57,8 +65,5 @@ export default {
 .cell {
   flex: 1 1 auto;
   height: 100%;
-  width: 11%;
-  /* border: 1px green solid;
-  box-sizing: border-box; */
 }
 </style>

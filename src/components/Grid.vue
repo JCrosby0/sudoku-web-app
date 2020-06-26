@@ -45,14 +45,16 @@ export default {
         left: null,
         top: null
       },
-      // selectedCells: [],
-      // highlightedCells: [],
-      // cursorIndexArray: [],
       dragSelectionObj: {}
     };
   },
   computed: {
-    ...mapGetters(["currentState", "selectedCells", "highlightedCells", "cursorIndex"]),
+    ...mapGetters([
+      "currentState",
+      "selectedCells",
+      "highlightedCells",
+      "cursorIndex"
+    ]),
     dragSelection() {
       return Object.keys(this.dragSelectionObj);
     },
@@ -389,9 +391,13 @@ export default {
         value: null,
         event: e
       };
+      const code = e.code || e.keyCodeVal;
+      console.log('e.keyCodeVal: ', e.keyCodeVal)
+      console.log('e.code: ', e.code)
+      console.log('code: ', code)
       // get the intended digit
       // eg shift + 2 => @
-      switch (e.code) {
+      switch (code) {
         case "Delete":
           output.value = null;
           break;
@@ -405,16 +411,16 @@ export default {
         case "Digit8":
         case "Digit9":
         case "Digit0":
-          output.value = e.code.slice(5);
+          output.value = code.slice(5);
           break;
         case "KeyY":
-          if (output.ctrl && e.code == "KeyY") {
+          if (output.ctrl && code == "KeyY") {
             this.redoAction();
             return;
           }
           break;
         case "KeyZ":
-          if (output.ctrl && e.code == "KeyZ") {
+          if (output.ctrl && code == "KeyZ") {
             //undo function
             this.undoAction();
             return;
@@ -422,9 +428,9 @@ export default {
           break;
 
         default:
-          if (e.code.slice(0, 3) === "Key") {
+          if (code.slice(0, 3) === "Key") {
             // letter key?
-            output.value = e.code.slice(3);
+            output.value = code.slice(3);
             break;
           } else {
             // modifiers, function keys etc?
