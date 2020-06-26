@@ -1,4 +1,4 @@
-import * as fn from "./sudokuFunctions";
+const fn = require('./sudokuFunctions')
 
 const testUniqueLength = (array) => {
   return array.length && array.length == (Array.from(new Set(array))).length
