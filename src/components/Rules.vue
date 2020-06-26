@@ -40,9 +40,7 @@
       </el-button-group>
       <!-- CHECK, SET AND RESET PUZZLE -->
       <el-button-group>
-        <el-button type="success" plain @click="checkPuzzle"
-          >[NYI]Check</el-button
-        >
+        <el-button type="success" plain @click="checkPuzzle">Check</el-button>
         <el-button v-if="setMode" type="warning" plain @click="setPuzzle"
           >[NYI]Set</el-button
         >
