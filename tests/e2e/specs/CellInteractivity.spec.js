@@ -27,7 +27,7 @@ describe("Cell Interactivity", () => {
     cy.get("#r0c2").should("have.class", "selected");
     cy.get("#r0c1").should("not.have.class", "selected");
   });
-  it("Selects multipe cells when shift+click", () => {
+  it("Selects multiple cells when shift+click", () => {
     cy.get("#r0c3").click();
     cy.get("body").type("{shift}", {
       release: false
