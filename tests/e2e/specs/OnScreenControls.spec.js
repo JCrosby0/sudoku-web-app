@@ -1,7 +1,7 @@
 describe("On Screen Controls", () => {
   it("Can input numbers", () => {
     cy.visit("/");
-    cy.contains("Solve").click();
+    cy.contains("Rules").click();
     cy.get("#r3c0").click();
     cy.get("[data-cy=1]").click();
     cy.get("#r3c0").should("contain", 1)

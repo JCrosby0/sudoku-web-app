@@ -157,9 +157,9 @@ export default {
 .notesBot {
   cursor: default;
   position: absolute;
-  transform: translate(-50%, -50%);
 }
 .value {
+  transform: translate(-50%, -50%);
   font-size: 2.2rem;
   text-align: center;
   top: 50%;
@@ -172,19 +172,24 @@ export default {
   font-stretch: expanded;
   text-align: left;
   user-select: none;
+  text-anchor: middle;
+  left: 5%;
+  letter-spacing: 3px;
 }
 .notesMid {
   top: 50%;
   width: 100%;
+  transform: translate(-50%, -50%);
   font-size: 1.2rem;
+  text-anchor: middle;
   text-align: center;
   user-select: none;
 }
 .notesTop {
-  top: 15%;
+  top: 5%;
 }
 .notesBot {
-  bottom: -15%;
+  bottom: 5%;
 }
 .highlighted {
   background-color: rgb(221, 255, 187);

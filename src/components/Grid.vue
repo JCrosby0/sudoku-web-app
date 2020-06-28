@@ -315,6 +315,7 @@ export default {
      * - existing selection should be removed
      */
     handleKeyDown(e) {
+      if (e.path.length > 4) return // ignore typing in puzzle set box
       let newCursorCell = {
         cellId: this.cursorCell.cellId,
         rowId: this.cursorCell.rowId
@@ -381,7 +382,7 @@ export default {
      */
     handleKeyPress(e) {
       // e.preventDefault();
-      console.log("keypress caught: ", e);
+      // console.log("keypress caught: ", e);
 
       // collate useful information
       const output = {
@@ -392,9 +393,6 @@ export default {
         event: e
       };
       const code = e.code || e.keyCodeVal;
-      console.log('e.keyCodeVal: ', e.keyCodeVal)
-      console.log('e.code: ', e.code)
-      console.log('code: ', code)
       // get the intended digit
       // eg shift + 2 => @
       switch (code) {
@@ -459,7 +457,6 @@ export default {
           c.error = false;
         } else if (output.shift && !output.ctrl) {
           // Add/remove keystroke to notesTop: +shift, -ctrl
-          console.log(fn);
           c.notesTop = fn.toggleKey(c.notesTop, output.value);
         } else if (output.ctrl && !output.shift) {
           // Add/remove keystroke to notesMid: -shift, +ctrl

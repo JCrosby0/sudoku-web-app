@@ -150,7 +150,6 @@ export default {
     undoAction({
       commit
     }) {
-      console.log(this);
       // this._vm.$message("Undo Fired");
       commit("UNDO_ACTION");
     },
@@ -187,7 +186,6 @@ export default {
     resetPuzzle({
       commit
     }) {
-      console.log('reset puzzle');
       commit("GET_INITIAL_STATE");
     }
   }

@@ -15,7 +15,8 @@ const testFullArray = (array) => {
 const rows = (array) => {
   const test = testFullArray(array)
   if (!test) return false;
-  const rowArray = new Array(9).fill([]);
+  const rowArray = new Array(9).fill();
+  rowArray.forEach((_,i) => rowArray[i] = []);
   array.forEach((c, i) => {
     rowArray[fn.rowFromIndex(i, 9)].push(c)
   })
@@ -26,7 +27,8 @@ const rows = (array) => {
 const cols = (array) => {
   const test = testFullArray(array)
   if (!test) return false;
-  const colArray = new Array(9).fill([]);
+  const colArray = new Array(9).fill();
+  colArray.forEach((_, i) => colArray[i] = []);
   array.forEach((c, i) => {
     colArray[fn.colFromIndex(i, 9)].push(c)
   })
@@ -35,7 +37,8 @@ const cols = (array) => {
 const boxes = (array) => {
   const test = testFullArray(array)
   if (!test) return false;
-  const boxArray = new Array(9).fill([]);
+  const boxArray = new Array(9).fill();
+  boxArray.forEach((_, i) => boxArray[i] = [])
   array.forEach((c, i) => {
     boxArray[fn.boxFromIndex(i, 9)].push(c)
   })

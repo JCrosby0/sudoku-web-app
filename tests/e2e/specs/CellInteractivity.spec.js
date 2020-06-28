@@ -1,6 +1,7 @@
 describe("Cell Interactivity", () => {
   it("Shows cursor when clicked", () => {
     cy.visit("/");
+    cy.get("[data-cy=navRules]").click()
     cy.get("#r0c0").click();
     cy.get("#r0c0").should("have.class", "selected");
   });
@@ -88,11 +89,11 @@ describe("Cell Interactivity", () => {
     // undo with keyboard shortcut
     cy.get("body").type("{ctrl}z");
     // undo with on screen button
-    cy.contains("Undo").click();
+    cy.get("[data-cy=undo]").click();
     // redo with keyboard shortcut
     cy.get("body").type("{ctrl}y");
     // redo with on screen button
-    cy.contains("Redo").click();
+    cy.get("[data-cy=redo]").click();
   });
   it("Highlights cells when clicked with alt", () => {
     cy.get("body").type("{alt}", {

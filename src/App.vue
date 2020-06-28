@@ -9,13 +9,17 @@
     <NavBar @toggle="handleToggle" />
     <el-container class="container">
       <Grid :settings="settings" />
-      <el-aside v-show="showRules">
-        <Rules title="My First Sudoku" />
+      <el-aside v-show="panel === 'rules'">
+        <Rules :settings="settings" />
       </el-aside>
-      <el-aside v-show="showControls">
+      <!-- <el-aside v-show="panel === 'controls'">
         <Controls />
+      </el-aside> -->
+      <el-aside v-show="panel === 'library'">
+        <Library 
+        @updateSettings="handleSettingsFromSet"/>
       </el-aside>
-      <el-aside v-show="showSet">
+      <el-aside v-show="panel === 'set'">
         <PuzzleSet
           :settings="settings"
           @updateSettings="handleSettingsFromSet"
@@ -28,10 +32,11 @@
 <script>
 import NavBar from "./components/NavBar.vue";
 import Grid from "./components/Grid.vue";
-import Controls from "./components/Controls.vue";
-import Rules from "./components/Rules.vue";
-import PuzzleSet from "./components/PuzzleSet.vue";
-import SettingsDrawer from "./components/SettingsDrawer.vue";
+// import Controls from "./components/PanelControls.vue";
+import Rules from "./components/PanelRules.vue";
+import PuzzleSet from "./components/PanelSet.vue";
+import Library from "./components/PanelLibrary.vue"
+import SettingsDrawer from "./components/DrawerSettings.vue";
 
 const defaultSettings = {
   puzzleSize: 9,
@@ -39,7 +44,9 @@ const defaultSettings = {
   boxSizeHor: 3,
   boxSizeVer: 3,
   selectOptions: [],
-  highlightOptions: ["Row", "Column", "Box", "Number"]
+  highlightOptions: ["Row", "Column", "Box", "Number"],
+  title: "My First Sudoku",
+  rules: ["Normal Sudoku rules apply"]
 };
 
 export default {
@@ -48,9 +55,10 @@ export default {
     NavBar,
     Grid,
     SettingsDrawer,
-    Controls,
+    // Controls,
     Rules,
-    PuzzleSet
+    PuzzleSet,
+    Library
   },
   mounted() {
     this.settings = Object.assign({}, defaultSettings);
@@ -58,10 +66,8 @@ export default {
   data() {
     return {
       settings: {},
+      panel: 'Rules',
       showSettings: false,
-      showRules: true,
-      showControls: false,
-      showSet: false
     };
   },
   methods: {
@@ -76,27 +82,11 @@ export default {
       this.settings = Object.assign({}, this.settings, obj);
     },
     handleToggle(type) {
-      switch (type) {
-        case "set":
-          this.showSet = !this.showSet;
-          this.showRules = false;
-          this.showControls = false;
-          break;
-        case "controls":
-          this.showControls = !this.showControls;
-          this.showRules = false;
-          this.showSet = false;
-          break;
-        case "settings":
-          this.showSettings = !this.showSettings;
-          break;
-        case "rules":
-          this.showRules = !this.showRules;
-          this.showControls = false;
-          this.showSet = false;
-          break;
-        default:
+      if (type === 'settings') {
+        this.showSettings = !this.showSettings;
+        return
       }
+      this.panel = (this.panel === type) ? null : type;
     }
   }
 };

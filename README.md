@@ -42,12 +42,20 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Set up data structure for current state of grid
 
-# undo redo stack
-
-## Set up cell to be completely dumb with slots
-
-## Set up buttons for functionality
+# undo redo stack -- fails sometimes
 
 # List out functionality required for grid decoration
 
-# Set up grid to be sized dynamically
+# reset puzzle should return it to the loaded state, not an empty grid
+
+# check puzzle could (offer to) highlight bad cells
+
+# some tab select / active region issues, ie click on body before can input
+
+# color back ground inputs
+
+# reactive menu design // menu across the bottom?
+
+# puzzle validation for additional rules
+
+# dynamic number sizing to scale with grid size -- too small if no border cells

@@ -15,7 +15,11 @@ import {
   Message,
   MessageBox,
   Notification,
-  Slider
+  Slider,
+  Select,
+  Option,
+  Tooltip,
+  Input
 } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -34,7 +38,10 @@ Vue.use(CheckboxGroup);
 Vue.use(Form);
 Vue.use(FormItem);
 Vue.use(Slider);
-
+Vue.use(Select);
+Vue.use(Option);
+Vue.use(Tooltip);
+Vue.use(Input);
 Vue.use(Loading.directive);
 
 Vue.prototype.$loading = Loading.service;
