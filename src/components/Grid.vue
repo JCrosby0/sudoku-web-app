@@ -281,6 +281,14 @@ export default {
               this.highlightCell(index);
             }
           }
+          // filled
+          else if (
+            this.settings.highlightOptions.includes("Filled") &&
+            (cell.value)
+          ) {
+            console.log(cell.value)
+            this.highlightCell(index);
+          }
         });
       }
 

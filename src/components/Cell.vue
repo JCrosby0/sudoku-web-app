@@ -3,10 +3,12 @@
     :id="'r' + rowId + 'c' + cellId"
     :class="cellClassObj"
     @dragstart="handleDrag"
-    @mousedown="handleEvent"
-    @dragleave="handleDrag"
-    @dragenter="handleDrag"
     @dragend="handleDrag"
+    @mousedown="handleEvent"
+    @mouseenter="handleMouseEnter"
+    @dragover="handleDrag"
+    @dragenter="handleDrag"
+    @dragleave="handleDrag"
   >
     <span :class="valueClassObj">{{ cellObj.value }}</span>
     <span v-show="cellObj.value === null" class="notesTop">{{ notesTop }}</span>
@@ -73,6 +75,7 @@ export default {
        * class based formatting of the cell
        */
       return {
+        lastOutObj: {},
         outerCell: true,
         selected: this.selectedCells.includes(this.cellIndex),
         highlighted: this.highlightedCells.includes(this.cellIndex),
@@ -87,6 +90,11 @@ export default {
     }
   },
   methods: {
+    handleMouseEnter(e) {
+      if (e.buttons) {
+        this.handleDrag(e);
+      }
+    },
     handleEvent(e) {
       this.handleCellClicked(e);
     },
@@ -100,10 +108,17 @@ export default {
       };
       switch (e.type) {
         case "dragstart":
+          e.dataTransfer.effectAllowed = "none";
+          e.dataTransfer.dropEffect = "none";
         case "dragenter":
-        case "dragover":
+        case "mouseenter":
+          if (!this.cellClassObj.highlighted) {
+            this.$emit("emitDragAdd", outObj);
+          }
+          break;
         case "dragleave":
-          this.$emit("emitDragAdd", outObj);
+        case "dragover":
+          return; 
           break;
         case "dragend":
           this.$emit("emitDragEnd", outObj);
@@ -113,8 +128,6 @@ export default {
       }
 
       // console.log("event registered: ", e.type, e, this.rowId, this.cellId);
-      e.dataTransfer.effectAllowed = "none";
-      e.dataTransfer.dropEffect = "none";
       if (e.shiftKey || e.ctrlKey) {
         this.handleCellClicked(e);
       }

@@ -72,6 +72,7 @@ export default {
         { label: "Box", value: "Box" },
         { label: "Number", value: "Number" },
         { label: "Number + Seen", value: "NumberSeen" },
+        { label: "Filled", value: "Filled" },
         { label: "Chess: King", value: "King" },
         { label: "Chess: Queen", value: "Queen" },
         { label: "Chess: Knight", value: "Knight" }

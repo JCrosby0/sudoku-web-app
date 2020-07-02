@@ -36,10 +36,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### TODO:
 
-## Finish handling click and drag selections in grid
-
-!click and drag is buggy
-
 ## Set up data structure for current state of grid
 
 # undo redo stack -- fails sometimes
