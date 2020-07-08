@@ -1,34 +1,21 @@
 <template>
-  <el-header class="header">
-    <div class="logo-title-container">
-      <div class="logo">
-        <div class="c"></div>
-        <div class="j"></div>
-      </div>
-      <h2 class="title">JC's Sudoku Grid</h2>
+<div class="header">
+
+  <div class="logo-title-container">
+    <div class="logo">
+      <div class="c"></div>
+      <div class="j"></div>
     </div>
-    <div class="menu">
-      <el-button
-        v-for="menu in menuArray"
-        :id="menu.id"
-        :key="menu.id"
-        :type="activeTab === menu.toggle ? 'primary' : 'info'"
-        round
-        :data-cy="menu.id"
-        :icon="menu.icon"
-        @click="toggle(menu.toggle)"
-      >
-        {{ menu.label }}
-      </el-button>
-    </div>
-  </el-header>
+    <h2 class="title">JC's Sudoku Grid</h2>
+  </div>
+  <NavMenu :collapsed="collapsed" @menuClick="toggle"></NavMenu>
+</div>
 </template>
 
 <script>
 const menuArray = [
   { id: "navLibrary", icon: "el-icon-collection", toggle: "library", label: "Library" },
   { id: "navSet", icon: "el-icon-edit-outline", toggle: "set", label: "Set" },
-  // { id: "navInput", icon: "el-icon-edit", toggle: "controls", label: "Solve" },
   {
     id: "navRules",
     icon: "el-icon-chat-square",
@@ -42,12 +29,22 @@ const menuArray = [
     label: "Settings"
   }
 ];
+import NavMenu from "./NavMenu"
 export default {
   name: "NavBar",
+  components: {
+    NavMenu,
+  },
+  props: {
+    collapsed: {
+      required: true,
+      type: Boolean,
+    }
+  },
   data() {
     return {
       activeTab: null,
-      menuArray: menuArray
+      menuArray: menuArray,
     };
   },
   methods: {
@@ -63,6 +60,12 @@ export default {
 </script>
 
 <style>
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 60px;
+}
 .logo-title-container {
   display: flex;
   flex-direction: row;
@@ -95,5 +98,16 @@ export default {
   height: 40px;
   border-radius: 12px 6px 9px 12px;
 box-sizing: border-box;
+}
+
+@media only screen and (max-width: 799px) {
+  .menu-wide {
+    display: none;
+  }
+}
+@media only screen and (min-width: 800px) {
+  .menu-narrow {
+    display: none;
+  }
 }
 </style>

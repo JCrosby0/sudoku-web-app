@@ -45,7 +45,8 @@ export default {
         left: null,
         top: null
       },
-      dragSelectionObj: {}
+      dragSelectionObj: {},
+      orientation: 'horizontal'
     };
   },
   computed: {
@@ -55,6 +56,11 @@ export default {
       "highlightedCells",
       "cursorIndex"
     ]),
+    fontSize() {
+      const size = window.innerWidth / parseFloat(getComputedStyle(document.querySelector('html'))['font-size']);
+      console.log('size: ', size)
+      return size;
+    },
     dragSelection() {
       return Object.keys(this.dragSelectionObj);
     },
@@ -64,10 +70,12 @@ export default {
     styleGridOuter() {
       return {
         height: this.cellLength * this.gridSize + "px",
-        width: this.cellLength * this.gridSize + "px"
+        width: this.cellLength * this.gridSize + "px",
+        fontSize: this.cellLength * 0.6 + "px"
       };
     },
     styleGridInner() {
+
       return {
         height: this.cellLength * this.settings.puzzleSize + "px",
         width: this.cellLength * this.settings.puzzleSize + "px",
@@ -117,8 +125,14 @@ export default {
     ]),
     updateWindowSize() {
       const headerHeight = 60; // px
-      const availHeight = window.innerHeight - headerHeight;
-      const availWidth = window.innerWidth;
+      const containerWidth = 300; // [x]
+      const height = window.innerHeight;
+      const width = window.innerWidth;
+      const orientation = (width > height) ? 'horizontal' : 'vertical'
+      this.orientation = orientation
+      // if window.innerWidth < 800 ? verticalorientation : horizontal orientation
+      const availHeight = height - headerHeight;
+      const availWidth = width - (width > 800 && containerWidth);
       this.cellLength = Math.min(availWidth, availHeight) / (this.gridSize + 1);
       this.outerMargin.left =
         (availWidth - this.cellLength * this.gridSize) / 2;

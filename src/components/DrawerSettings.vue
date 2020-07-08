@@ -4,8 +4,8 @@
       id="settings-container"
       :visible.sync="showDrawer"
       :before-close="handleClose"
-      direction="rtl"
-      size="300px"
+      :direction="direction"
+      :size="size"
     >
       <!-- title="Settings" -->
       <h4 slot="title" class="left">Settings</h4>
@@ -47,6 +47,11 @@
 export default {
   name: "SettingsDrawer",
   props: {
+    orientation: {
+      required: false,
+      type: String,
+      default: () => 'vertical'
+    },
     showDrawer: {
       required: true,
       type: Boolean,
@@ -83,6 +88,15 @@ export default {
         { label: "Box", value: "Box" }
       ]
     };
+  },
+  computed: {
+    direction() {
+      console.log('this.orientation: ', this.orientation)
+      return (this.orientation === 'vertical') ? 'btt' : 'rtl'
+    },
+    size () {
+      return (this.orientation === 'vertical') ? '400px' : '300px'
+    }
   },
   watch: {
     showDrawer(n, o) {

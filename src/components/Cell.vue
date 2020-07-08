@@ -10,10 +10,25 @@
     @dragenter="handleDrag"
     @dragleave="handleDrag"
   >
-    <span :class="valueClassObj">{{ cellObj.value }}</span>
-    <span v-show="cellObj.value === null" class="notesTop">{{ notesTop }}</span>
-    <span v-show="cellObj.value === null" class="notesMid">{{ notesMid }}</span>
-    <span v-show="cellObj.value === null" class="notesBot">{{ notesBot }}</span>
+    <span
+      :class="valueClassObj">
+      {{ cellObj.value }}
+      </span>
+    <span
+      v-show="cellObj.value === null"
+      class="notesTop">
+      {{ notesTop }}
+    </span>
+    <span
+      v-show="cellObj.value === null"
+      class="notesMid">
+      {{ notesMid }}
+    </span>
+    <span
+      v-show="cellObj.value === null"
+      class="notesBot">
+      {{ notesBot }}
+    </span>
   </div>
 </template>
 
@@ -47,6 +62,13 @@ export default {
     },
     cellObj() {
       return this.cellDescription(this.cellIndex);
+    },
+    cellHeight() {
+      const cell = document.querySelector('.cell')
+      if (!cell) return 10
+      const computed = getComputedStyle(cell)
+      const height = computed["height"];
+      return height
     },
     notesMid() {
       return this.stringFromArray(this.cellObj.notesMid);
@@ -144,6 +166,21 @@ export default {
       };
       this.$emit("emitCellClicked", outObj);
     },
+    // cellFontSize(spanType) {
+    //   console.log('cellFontSize called', spanType)
+    //   console.log('this.cellHeight', this.cellHeight)
+    //   switch(spanType) {
+    //     case 'notesTop':
+    //       return {fontSize: this.cellHeight/2.5 + 'px'};
+    //     case 'notesMid':
+    //       return {fontSize: this.cellHeight/2 + 'px'};
+    //     case 'value': 
+    //       return {fontSize: this.cellHeight/1.5 + 'px' };
+    //     default:
+    //       return {fontSize: this.cellHeight/2 + 'px'};
+
+    //   }
+    // },
     stringFromArray(arr) {
       let output = "";
       arr.forEach(a => (output += a));
@@ -173,7 +210,7 @@ export default {
 }
 .value {
   transform: translate(-50%, -50%);
-  font-size: 2.2rem;
+  /* font-size: 2.2rem; */
   text-align: center;
   top: 50%;
   width: 100%;
@@ -181,7 +218,7 @@ export default {
 }
 .notesTop,
 .notesBot {
-  font-size: 0.8rem;
+  font-size: 0.4em;
   font-stretch: expanded;
   text-align: left;
   user-select: none;
@@ -193,7 +230,7 @@ export default {
   top: 50%;
   width: 100%;
   transform: translate(-50%, -50%);
-  font-size: 1.2rem;
+  font-size: 0.5em;
   text-anchor: middle;
   text-align: center;
   user-select: none;

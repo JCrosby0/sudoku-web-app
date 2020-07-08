@@ -55,3 +55,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 # puzzle validation for additional rules
 
 # dynamic number sizing to scale with grid size -- too small if no border cells
+
+# check screen to list all individual checks
+
+# menus to be handled for portrait mode, modal or from bottom
