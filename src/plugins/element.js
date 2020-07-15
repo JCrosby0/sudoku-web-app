@@ -24,6 +24,11 @@ import {
   Submenu,
   MenuItem,
   MenuItemGroup,
+  Tabs,
+  TabPane,
+  Dialog,
+  Table,
+  TableColumn
 } from "element-ui";
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
@@ -50,6 +55,11 @@ Vue.use(Menu),
 Vue.use(Submenu),
 Vue.use(MenuItem),
 Vue.use(MenuItemGroup),
+Vue.use(Tabs);
+Vue.use(TabPane);
+Vue.use(Dialog);
+Vue.use(Table);
+Vue.use(TableColumn);
 Vue.use(Loading.directive);
 
 Vue.prototype.$loading = Loading.service;

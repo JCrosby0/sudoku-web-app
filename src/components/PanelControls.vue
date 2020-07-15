@@ -22,7 +22,7 @@
           <el-button class="button">[NYI]Color</el-button>
         </div>
       </div>
-      <el-button-group class="toggles">
+      <div class="toggles">
         <el-button
           v-for="toggle in toggles"
           :key="toggle"
@@ -31,7 +31,7 @@
           @click="handleToggle(toggle)"
           >{{ toggle }}</el-button
         >
-      </el-button-group>
+      </div>
     </div>
   </div>
 </template>

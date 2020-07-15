@@ -91,11 +91,10 @@ export default {
   },
   computed: {
     direction() {
-      console.log('this.orientation: ', this.orientation)
       return (this.orientation === 'vertical') ? 'btt' : 'rtl'
     },
     size () {
-      return (this.orientation === 'vertical') ? '400px' : '300px'
+      return (this.orientation === 'vertical') ? '500px' : '300px'
     }
   },
   watch: {

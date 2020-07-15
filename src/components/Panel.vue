@@ -1,18 +1,16 @@
 <template>
   <div class="panel-main">
-    <el-aside v-show="panel === 'navRules'">
-      <Rules :settings="settings" />
-    </el-aside>
-    <el-aside v-show="panel === 'navLibrary'">
-      <Library 
+    <Rules
+      v-show="panel === 'navRules'"
+      :settings="settings"
+      :orientation="orientation"/>
+    <Library v-show="panel === 'navLibrary'" 
       @updateSettings="updateSettings"/>
-    </el-aside>
-    <el-aside v-show="panel === 'navSet'">
-      <PuzzleSet
-        :settings="settings"
-        @updateSettings="updateSettings"
-      />
-    </el-aside>
+    <PuzzleSet
+       v-show="panel === 'navSet'"
+      :settings="settings"
+      @updateSettings="updateSettings"
+    />
   </div> 
 </template>
 
@@ -23,6 +21,10 @@ import Library from "./PanelLibrary.vue"
 export default {
   name: "Panel",
   props: {
+    orientation: {
+      required: true,
+      type: String
+    },
     settings: {
       required: true,
       type: Object,
@@ -47,7 +49,8 @@ export default {
 </script>
 
 <style>
-/* .panel-main {
-} */
+.panel-main {
+  width: 100%;
+}
 
 </style>

@@ -75,7 +75,6 @@ export default {
       };
     },
     styleGridInner() {
-
       return {
         height: this.cellLength * this.settings.puzzleSize + "px",
         width: this.cellLength * this.settings.puzzleSize + "px",
@@ -125,13 +124,14 @@ export default {
     ]),
     updateWindowSize() {
       const headerHeight = 60; // px
-      const containerWidth = 300; // [x]
+      const containerWidth = 300; // px
+      const panelHeight = 250; // px
       const height = window.innerHeight;
       const width = window.innerWidth;
       const orientation = (width > height) ? 'horizontal' : 'vertical'
       this.orientation = orientation
       // if window.innerWidth < 800 ? verticalorientation : horizontal orientation
-      const availHeight = height - headerHeight;
+      const availHeight = height - headerHeight - (width < 800 && panelHeight);
       const availWidth = width - (width > 800 && containerWidth);
       this.cellLength = Math.min(availWidth, availHeight) / (this.gridSize + 1);
       this.outerMargin.left =
@@ -563,11 +563,13 @@ export default {
   background: lightgrey;
   display: flex;
   justify-content: center;
+  padding: 0 0 4px 0;
 }
 .grid-outer {
   margin: auto;
   position: relative;
   background: lightgrey;
+  /* box-sizing: border-box; */
 }
 .grid-inner {
   background: grey;

@@ -6,7 +6,7 @@
       <div class="c"></div>
       <div class="j"></div>
     </div>
-    <h2 class="title">JC's Sudoku Grid</h2>
+    <h3 class="title">JC's Sudoku Grid</h3>
   </div>
   <NavMenu :collapsed="collapsed" @menuClick="toggle"></NavMenu>
 </div>
@@ -67,6 +67,7 @@ export default {
   height: 60px;
 }
 .logo-title-container {
+  padding-left: 12px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

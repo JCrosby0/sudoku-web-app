@@ -8,42 +8,31 @@
       @updateSettings="handleSettings"
     />
     <NavBar :collapsed="collapsed" @toggle="handleToggle" />
-    <el-container class="container" :style="containerStyle">
-      <Grid :settings="settings"/>
+    <div class="container" :style="containerStyle">
+      <Grid class="grid" :settings="settings"/>
       <Panel
         :settings="settings"
         :panel="panel"
+        :orientation="orientation"
+        class="panel"
         @updateSettings="handleSettingsFromSet"></Panel>
-      <!-- <el-aside v-show="panel === 'navRules'">
-        <Rules :settings="settings" />
-      </el-aside>
-      <el-aside v-show="panel === 'navLibrary'">
-        <Library 
-        @updateSettings="handleSettingsFromSet"/>
-      </el-aside>
-      <el-aside v-show="panel === 'navSet'">
-        <PuzzleSet
-          :settings="settings"
-          @updateSettings="handleSettingsFromSet"
-        />
-      </el-aside> -->
-    </el-container>
+      <!-- <FooterBar
+        class='footer-bar'
+      ></FooterBar> -->
+    </div>
   </div>
 </template>
 
 <script>
 import NavBar from "./components/NavBar.vue";
 import Grid from "./components/Grid.vue";
+// import FooterBar from "./components/FooterBar.vue"
 import Panel from "./components/Panel.vue";
-// import Controls from "./components/PanelControls.vue";
-// import Rules from "./components/PanelRules.vue";
-// import PuzzleSet from "./components/PanelSet.vue";
-// import Library from "./components/PanelLibrary.vue"
 import SettingsDrawer from "./components/DrawerSettings.vue";
 
 const defaultSettings = {
   puzzleSize: 9,
-  borderRows: 2,
+  borderRows: 1,
   boxSizeHor: 3,
   boxSizeVer: 3,
   selectOptions: [],
@@ -57,12 +46,9 @@ export default {
   components: {
     NavBar,
     Grid,
+    // FooterBar,
     Panel,
     SettingsDrawer,
-    // Controls,
-    // Rules,
-    // PuzzleSet,
-    // Library
   },
   data() {
     return {
@@ -142,11 +128,24 @@ body {
 .fullscreen {
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 .container {
   height: calc(100% - 60px);
   display: flex;
   justify-content: space-between;
+  max-height: 100%;
+}
+.footer-bar
+{
+  flex: 0 0 auto;
+}
+.grid {
+  flex: 1 1 auto;
+}
+.panel {
+  flex: 1 0 250px;
+  overflow: auto;
 }
 .header {
   width: 100vw;

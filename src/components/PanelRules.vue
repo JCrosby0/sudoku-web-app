@@ -1,102 +1,124 @@
 <template>
   <div id="rules-container" class="left">
-    <div class="rules">
-      <h2 v-if="puzzleTitle !== ''">{{ puzzleTitle }}</h2>
-      <h4>Rules:</h4>
-      <ul class="left">
-        <li v-for="(rule, i) in settings.rules" :key="'rule' + i">{{ rule }}</li>
-      </ul>
-    </div>
-
-    <!-- CONTROLS -->
-    <div class="rules-controls">
-      <h4 class="title">Controls:</h4>
-      <div class="toggles-array">
-      <el-button-group class="toggles">
-        <el-button
-          v-for="toggle in toggles"
-          :key="toggle"
-          :type="currentToggle === toggle ? 'primary' : 'default'"
-          :data-cy="toggle"
-          @click="handleToggle(toggle)"
-          >{{ toggle }}</el-button
-        >
-      </el-button-group>
-      </div>
-      <div class="button-array">
-        <div v-for="digit in 9" :key="digit" class="button-spacing">
-          <el-button
-            class="button"
-            type="primary"
-            plain
-            :data-cy="digit"
-            @click="simKeyDown(digit)"
-            >{{ digit }}</el-button
-          >
+    <el-tabs type="border-card" tab-position="top">
+      <!-- RULES -->
+      <el-tab-pane label="Rules">
+        <div class="rules">
+          <h2 v-if="puzzleTitle !== ''">{{ puzzleTitle }}</h2>
+          <ul class="left">
+            <li v-for="(rule, i) in settings.rules" :key="'rule' + i">{{ rule }}</li>
+          </ul>
         </div>
+      </el-tab-pane>
+      <!-- CONTROLS -->
+      <el-tab-pane label="Input">
+        <div class="rules-controls">
+          <div class="controls-orientation" :style="orientationStyle">
+            <div class="button-array-toggles">
+              <!-- <el-button-group class="toggles"> -->
+              <el-button
+                v-for="toggle in toggles"
+                :key="toggle"
+                :type="currentToggle === toggle ? 'primary' : 'default'"
+                :data-cy="toggle"
+                size="small"
+                class="button-toggle"
+                width="100px"
+                @click="handleToggle(toggle)"
+                >{{ toggle }}</el-button
+              >
+              <!-- </el-button-group> -->
+            </div>
+            <div class="button-array-digits">
+              <div v-for="digit in 9"
+                :key="digit"
+                class="button-spacing">
+                <el-button
+                  class="button"
+                  type="primary"
+                  size="small"
+                  plain
+                  :data-cy="digit"
+                  @click="simKeyDown(digit)"
+                  >{{ digit }}</el-button
+                >
+              </div>
+            </div>
+            <div class="button-array-other">
+              <el-button
+                class="button-other"
+                size="small"
+                data-cy="Delete"
+                @click="simKeyDown('Delete')"
+                >Delete</el-button
+              >
+              <el-button size="small" class="button-other">[NYI]Color</el-button>
+            </div>
+          </div>
         </div>
-        <div class="button-bottom">
-          <el-button
-            class="button"
-            data-cy="Delete"
-            @click="simKeyDown('Delete')"
-            >Delete</el-button
-          >
-          <el-button class="button">[NYI]Color</el-button>
-      </div>
-      <!-- <ul>
-        <li v-for="(control, i) in controls" :key="'control' + i">
-          {{ control }}
-        </li>
-      </ul> -->
-      <!-- UNDO AND REDO BUTTONS -->
-      <div class="toggles-array">
-
-        <el-button-group type="primary">
-          <el-tooltip class="item" effect="dark" content="Undo" data-cy="undo" placement="top">
-            <el-button :disabled="!undoStackSize" type="info" plain icon="el-icon-back" @click="undoAction">
-            <!-- {{ undoStackSize && "(" + undoStackSize + ")" }} -->
-            </el-button>
-          </el-tooltip>
-          <el-tooltip class="item" effect="dark" content="Redo" data-cy="redo" placement="top">
-            <el-button :disabled="!redoStackSize" type="info" plain icon="el-icon-right" @click="redoAction">
-            <!-- {{ redoStackSize && "(" + redoStackSize + ")" }} -->
-            </el-button>
+      </el-tab-pane>
+      <!-- OTHER FUNCTIONALITY -->
+      <el-tab-pane label="Notes">
+        <textarea rows="8" cols="34" class="input-notes"/>
+      </el-tab-pane>
+      <el-tab-pane label="Other">
+        <!-- UNDO AND REDO BUTTONS -->
+        <div class="toggles-array">
+          <el-button-group type="primary">
+            <el-tooltip class="item" effect="dark" content="Undo" data-cy="undo" placement="top">
+              <el-button :disabled="!undoStackSize" type="info" plain icon="el-icon-back" @click="undoAction">
+              <!-- {{ undoStackSize && "(" + undoStackSize + ")" }} -->Undo
+              </el-button>
             </el-tooltip>
-          <el-tooltip class="item" effect="dark" content="Check Puzzle" data-cy="check" placement="top">
-            <el-button type="success" plain icon="el-icon-circle-check" @click="checkPuzzle"></el-button>
-          </el-tooltip>
-          <el-tooltip class="item" effect="dark" content="Reset Puzzle" data-cy="reset" placement="top">
-            <el-button
-              type="danger"
-              plain
-              data-cy="Reset"
-              icon="el-icon-circle-close" 
-              @click="confirmResetPuzzle"></el-button>
-          </el-tooltip>
-        </el-button-group>
-      </div>
-
-      <!-- SAVE & RESTORE PUZZLE -->
-      <!-- <el-button-group>
-        <el-button type="primary" plain data-cy="Save" @click="savePuzzle"
-          >Save</el-button
-        >
-        <el-button type="primary" plain data-cy="Load" @click="loadPuzzle"
-          >Load</el-button
-        >
-      </el-button-group> -->
-    
-    </div>
+            <el-tooltip class="item" effect="dark" content="Redo" data-cy="redo" placement="top">
+              <el-button :disabled="!redoStackSize" type="info" plain icon="el-icon-right" @click="redoAction">
+              <!-- {{ redoStackSize && "(" + redoStackSize + ")" }} -->Redo
+              </el-button>
+              </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="Check Puzzle" data-cy="check" placement="top">
+              <el-button type="success" plain icon="el-icon-circle-check" @click="checkPuzzle">Check</el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="Reset Puzzle" data-cy="reset" placement="top">
+              <el-button
+                type="danger"
+                plain
+                data-cy="Reset"
+                icon="el-icon-circle-close" 
+                @click="confirmResetPuzzle">Reset</el-button>
+            </el-tooltip>
+          </el-button-group>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+    <CheckPuzzle
+      :show="showTestResults"
+      :test-config="testConfig"
+      @hide="hideTestResults"
+      />
   </div>
 </template>
 
 <script>
 import * as chk from "../plugins/sudokuCheck.js";
+import CheckPuzzle from "./CheckPuzzle.vue"
 import { mapActions, mapGetters } from "vuex";
+
+const testConfig = [
+  { active: true, test: chk.rows, description: "Unique values in Rows", result: null },
+  { active: true, test: chk.cols, description: "Unique values in Columns", result: null },
+  { active: true, test: chk.boxes, description: "Unique values in Boxes", result: null },
+  { active: false, test: chk.diagonals, description: "Unique values on diagonals", result: null }
+];
+
 export default {
   name: "Rules",
+  components: { CheckPuzzle },
   props: {
+    orientation: {
+      required: false,
+      type: String,
+      default: () => 'horizontal',
+    },
     settings: {
       required: true,
       type: Object
@@ -132,13 +154,21 @@ export default {
         "Top Notes: hold Shift",
         "Central Notes: hold Control",
         "Highlighting: hold Alt and click"
-      ]
+      ],
+      testConfig: testConfig,
+      showTestResults: false,
     };
   },
   computed: {
     ...mapGetters(["redoStackSize", "undoStackSize", "currentState"]),
     puzzleTitle () {
       return this.settings.title || this.title || ''
+    },
+    orientationStyle () {
+      const style = {
+        flexDirection: (this.orientation === 'horizontal') ? 'column' : 'row',
+      }
+      return style
     }
   },
   mounted() {
@@ -162,13 +192,11 @@ export default {
       "undoAction",
       "redoAction"
     ]),
+    hideTestResults() {
+      this.showTestResults = false
+    },
     checkPuzzle() {
-      const testConfig = [
-        { active: true, test: chk.rows },
-        { active: true, test: chk.cols },
-        { active: true, test: chk.boxes },
-        { active: false, test: chk.diagonals }
-      ];
+      const testConfig = this.testConfig
       const tests = [];
       const vals = this.currentState.map(c => Number.parseInt(c.value));
       testConfig.forEach(testCase => {
@@ -177,26 +205,30 @@ export default {
           if (result) {
             const valid = result.every(r => chk.testUniqueLength(r));
             tests.push(valid);
+            testCase.result = true
           } else {
             tests.push(result);
+            testCase.result = false
           }
         }
       });
-      if (tests.length == 0) {
+       if (tests.length == 0) {
         this.$message({
           message: "No tests are selected...",
           type: "warning"
         });
       } else if (tests.every(t => t)) {
-        this.$message({
-          message: "Looks good to me!",
-          type: "success"
-        });
+        this.showTestResults = true
+        // this.$message({
+        //   message: "Looks good to me!",
+        //   type: "success"
+        // });
       } else {
-        this.$message({
-          message: "Something's not quite right...",
-          type: "error"
-        });
+        this.showTestResults = true
+        // this.$message({
+        //   message: "Something's not quite right...",
+        //   type: "error"
+        // });
       }
     },
     savePuzzle() {
@@ -312,17 +344,15 @@ export default {
 <style>
 #rules-container {
   height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
 }
-#rules-container .rules,
-#rules-container .rules-controls {
+#rules-container .rules {
   text-align: left;
-  flex: 1 1 auto;
-  border: 1px solid #eee;
-  padding: 0 12px;
-  margin: 12px;
+  flex: 1 1 100%;
 }
 .left {
   text-align: left;
@@ -333,32 +363,41 @@ li {
 ul {
   padding-left: 0;
 }
-.button-array {
+.controls-orientation {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+}
+.button-array-toggles,
+.button-array-other {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.button-array-toggles > .button-toggle,
+.button-array-other > .button-other {
+  margin: 10px;
+}
+.toggles {
+  text-align: center;
+}
+.button-array-digits {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: center;
 }
 .button-spacing {
-  flex: 1 1 auto;
+  flex: 1 1 33%;
   text-align: center;
-  padding: 9px;
-}
-.button-bottom {
-  flex: 1 1 75%;
-  text-align: center;
-  padding: 6px;
-}
-.toggles-array {
-  width: 100%;
-  text-align: center;
-  padding-bottom: 9px;
-}
-.toggles {
-  /* padding-bottom: 6px; */
-  text-align: center;
-}
+ }
 .controls {
   text-align: center;
+}
+.input-notes {
+  height: 120px;
+  width: 280px;
 }
 </style>
