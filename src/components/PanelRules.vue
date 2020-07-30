@@ -1,8 +1,8 @@
 <template>
-  <div id="rules-container" class="left">
+  <div id="rules-container" class="left panel" :style="stylePanel">
     <el-tabs type="border-card" tab-position="top">
       <!-- RULES -->
-      <el-tab-pane label="Rules">
+      <el-tab-pane label="Rules" class="panel panel-rules">
         <div class="rules">
           <h2 v-if="puzzleTitle !== ''">{{ puzzleTitle }}</h2>
           <ul class="left">
@@ -11,10 +11,10 @@
         </div>
       </el-tab-pane>
       <!-- CONTROLS -->
-      <el-tab-pane label="Input">
+      <el-tab-pane label="Input" class="panel panel-controls">
         <div class="rules-controls">
-          <div class="controls-orientation" :style="orientationStyle">
-            <div class="button-array-toggles">
+          <div class="controls-orientation" :style="styleOrientation">
+            <div class="button-array-toggles" :style="styleButtonArrayToggles">
               <!-- <el-button-group class="toggles"> -->
               <el-button
                 v-for="toggle in toggles"
@@ -29,7 +29,7 @@
               >
               <!-- </el-button-group> -->
             </div>
-            <div class="button-array-digits">
+            <div class="button-array-digits" :style="styleButtonArrayDigits">
               <div v-for="digit in 9"
                 :key="digit"
                 class="button-spacing">
@@ -44,7 +44,7 @@
                 >
               </div>
             </div>
-            <div class="button-array-other">
+            <div class="button-array-other" :style="styleButtonArrayToggles">
               <el-button
                 class="button-other"
                 size="small"
@@ -52,18 +52,19 @@
                 @click="simKeyDown('Delete')"
                 >Delete</el-button
               >
-              <el-button size="small" class="button-other">[NYI]Color</el-button>
+              <el-button size="small" class="button-other">Color</el-button>
             </div>
           </div>
         </div>
       </el-tab-pane>
-      <!-- OTHER FUNCTIONALITY -->
-      <el-tab-pane label="Notes">
+      <!-- NOTES -->
+      <el-tab-pane label="Notes" class="panel panel-notes">
         <textarea rows="8" cols="34" class="input-notes"/>
       </el-tab-pane>
-      <el-tab-pane label="Other">
+      <!-- OTHER FUNCTIONALITY -->
+      <el-tab-pane label="Other" clas="panel panel-other">
         <!-- UNDO AND REDO BUTTONS -->
-        <div class="toggles-array">
+        <div class="other-buttons-array">
           <el-button-group type="primary">
             <el-tooltip class="item" effect="dark" content="Undo" data-cy="undo" placement="top">
               <el-button :disabled="!undoStackSize" type="info" plain icon="el-icon-back" @click="undoAction">
@@ -75,6 +76,8 @@
               <!-- {{ redoStackSize && "(" + redoStackSize + ")" }} -->Redo
               </el-button>
               </el-tooltip>
+          </el-button-group>
+          <el-button-group type="primary">
             <el-tooltip class="item" effect="dark" content="Check Puzzle" data-cy="check" placement="top">
               <el-button type="success" plain icon="el-icon-circle-check" @click="checkPuzzle">Check</el-button>
             </el-tooltip>
@@ -164,11 +167,26 @@ export default {
     puzzleTitle () {
       return this.settings.title || this.title || ''
     },
-    orientationStyle () {
-      const style = {
+    styleOrientation () {
+      return {
         flexDirection: (this.orientation === 'horizontal') ? 'column' : 'row',
       }
-      return style
+    },
+    styleButtonArrayToggles () {
+      return {
+        flexDirection: (this.orientation === 'horizontal') ? 'row' : 'column',
+        justifyContent: 'space-between'
+      }
+    },
+    styleButtonArrayDigits () {
+      return {
+        flex: (this.orientation === 'horizontal') ? '0 1 auto' : '0 1 120px;'
+      }
+    },
+    stylePanel () {
+      return {
+        height: (this.orientation === 'horizontal') ? '100%' : '226px'
+      }
     }
   },
   mounted() {
@@ -370,14 +388,16 @@ ul {
 }
 .button-array-toggles,
 .button-array-other {
-  text-align: center;
+  /* text-align: center; */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
 }
 .button-array-toggles > .button-toggle,
 .button-array-other > .button-other {
-  margin: 10px;
+  margin: 10px 0 !important;
+  /* overwrite element adding margin to two consecutive buttons */
+  flex: 1 1 20%;
 }
 .toggles {
   text-align: center;
@@ -388,16 +408,33 @@ ul {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  margin: 0 10px;
+  /* flex: 0 0 120px; */
 }
 .button-spacing {
   flex: 1 1 33%;
   text-align: center;
+  margin: 0.5em 0;
  }
 .controls {
   text-align: center;
 }
+.other-buttons-array,
 .input-notes {
-  height: 120px;
-  width: 280px;
+  height: 150px;
+  width: 100%;
+  box-sizing: border-box;
 }
+.panel-notes {
+  text-align: center;
+}
+.panel-notes, 
+.panel-rules,
+.panel-other,
+.panel-controls {
+  height: 100%;
+}
+/* .panel {
+  height: 226px;
+} */
 </style>

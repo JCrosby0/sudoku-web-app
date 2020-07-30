@@ -1,7 +1,14 @@
 <template>
+  <el-drawer
+    id="settings-container"
+    :visible.sync="showDrawer"
+    :before-close="handleClose"
+    :direction="direction"
+    :size="size"
+  >
+  <h4 slot="title" class="left">Puzzle Set Mode</h4>
   <div id="set-container" class="left">
     <div class="controls left">
-      <h4 slot="title">Puzzle Set Mode</h4>
       <ul>
         <li>Puzzle Title</li>
         <el-input v-model="puzzleTitle" placeholder="My Puzzle"></el-input>
@@ -51,12 +58,24 @@
           :min="2"
           :max="4"
         ></el-slider>
-        <li>Finish Setting</li>
-        <el-button v-if="setMode" type="warning" plain @click="confirmSetPuzzle"
-          >Set</el-button>
+        <li>Lock Puzzle</li>
+        <el-button type="warning" :disabled="!setMode" plain @click="lockPuzzle"
+          >Lock</el-button>
+        <el-button type="warning" :disabled="setMode" plain @click="unlockPuzzle"
+          >Unlock</el-button>
+        <li>
+
+        <el-button-group>
+          <el-button type="primary" @click="updateSettings"
+            >OK</el-button
+          >
+          <el-button @click="handleClose">Cancel</el-button>
+        </el-button-group>
+        </li>
       </ul>
     </div>
   </div>
+  </el-drawer>
 </template>
 
 <script>
@@ -69,8 +88,18 @@ const rulesets = [
   {name: "Thermo", description: "Along a thermometer, digits must increase starting from the bulb."},
 ]
 export default {
-  name: "PuzzleSet",
-  props: {
+  name: "PuzzleSetDrawer",
+    props: {
+    orientation: {
+      required: false,
+      type: String,
+      default: () => 'vertical'
+    },
+    showDrawer: {
+      required: true,
+      type: Boolean,
+      default: () => false
+    },
     settings: {
       required: true,
       type: Object,
@@ -92,19 +121,47 @@ export default {
       rulesets: rulesets,
     }
   },
+  computed: {
+    direction() {
+      return (this.orientation === 'vertical') ? 'btt' : 'rtl'
+    },
+    size () {
+      return (this.orientation === 'vertical') ? '500px' : '300px'
+    }
+  },
+  watch: {
+    showDrawer(n, o) {
+      if (n !== o && n) {
+        // if drawer opens, update this.form from this.settings
+        this.form = Object.assign({}, this.form, this.settings);
+      }
+    }
+  },
   methods: {
     ...mapActions(["setPuzzle"]),
-    confirmSetPuzzle() {
-      this.$confirm("Is the puzzle ready to go?", "Warning").then(() => {
-        this.setMode = false;
+    handleClose(e, type = false) {
+      const output = Object.assign({}, this.form, { action: type, event: e });
+      this.$emit("updateSettings", output);
+    },
+    unlockPuzzle () {
+      this.setMode = true;
+    },
+    lockPuzzle() {
+      this.setMode = false;
+      this.setPuzzle();
+      this.$message("Puzzle set");
+    },
+    updateSettings() {
+      // this.$confirm("Is the puzzle ready to go?", "Warning").then(() => {
+      //   this.setMode = false;
         // fire action to initialise puzzle
-        this.setPuzzle();
-        this.settings.rules = this.rulesets
-          .filter(r => this.rules.includes(r.name))
-          .map(r => r.description);
-        this.settings.title = this.puzzleTitle
-        this.$message("Puzzle set");
-      });
+        // this.setPuzzle();
+      this.settings.rules = this.rulesets
+        .filter(r => this.rules.includes(r.name))
+        .map(r => r.description);
+      this.settings.title = this.puzzleTitle
+      this.handleClose(e, true)
+      // });
     },
   }
 };
@@ -113,6 +170,8 @@ export default {
 .controls > ul > li {
   list-style: none;
   padding-top: 12px;
+  overflow: auto;
+  height: 100%;
 }
 
 </style>

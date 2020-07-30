@@ -10,23 +10,16 @@
     @dragenter="handleDrag"
     @dragleave="handleDrag"
   >
-    <span
-      :class="valueClassObj">
+    <span :class="valueClassObj">
       {{ cellObj.value }}
-      </span>
-    <span
-      v-show="cellObj.value === null"
-      class="notesTop">
+    </span>
+    <span v-show="cellObj.value === null" class="notesTop">
       {{ notesTop }}
     </span>
-    <span
-      v-show="cellObj.value === null"
-      class="notesMid">
+    <span v-show="cellObj.value === null" class="notesMid">
       {{ notesMid }}
     </span>
-    <span
-      v-show="cellObj.value === null"
-      class="notesBot">
+    <span v-show="cellObj.value === null" class="notesBot">
       {{ notesBot }}
     </span>
   </div>
@@ -39,11 +32,13 @@ export default {
   props: {
     rowId: {
       required: true,
-      type: Number
+      type: Number,
+      String
     },
     cellId: {
       required: true,
-      type: Number
+      type: Number,
+      String
     },
     settings: {
       required: true,
@@ -61,15 +56,18 @@ export default {
       return this.rowId * this.settings.puzzleSize + this.cellId;
     },
     cellObj() {
+      // const desc = this.cellDescription(this.cellIndex);
       return this.cellDescription(this.cellIndex);
     },
-    cellHeight() {
-      const cell = document.querySelector('.cell')
-      if (!cell) return 10
-      const computed = getComputedStyle(cell)
-      const height = computed["height"];
-      return height
-    },
+    // cellHeight() {
+    //   const cell = document.querySelector('.cell')
+    //   console.log('cell: ', cell)
+    //   if (!cell) return 10
+    //   const computed = getComputedStyle(cell)
+    //   console.log('computed: ', computed)
+    //   const height = computed["height"];
+    //   return height
+    // },
     notesMid() {
       return this.stringFromArray(this.cellObj.notesMid);
     },
@@ -86,16 +84,18 @@ export default {
       else return "black";
     },
     valueClassObj() {
+      const outer = (this.cellIndex >= this.settings.puzzleSize) ^ 2;
       return {
         value: true,
-        fixed: this.cellObj.fixed,
-        error: this.cellObj.error
+        fixed: outer ? true : this.cellObj.fixed,
+        error: outer ? false : this.cellObj.error
       };
     },
     cellClassObj() {
       /**
        * class based formatting of the cell
        */
+      if (this.cellIndex >= this.settings.puzzleSize ** 2) return {};
       return {
         lastOutObj: {},
         outerCell: true,
@@ -140,7 +140,7 @@ export default {
           break;
         case "dragleave":
         case "dragover":
-          return; 
+          return;
           break;
         case "dragend":
           this.$emit("emitDragEnd", outObj);
@@ -149,7 +149,6 @@ export default {
           console.log("what is this drag event: ", e.type);
       }
 
-      // console.log("event registered: ", e.type, e, this.rowId, this.cellId);
       if (e.shiftKey || e.ctrlKey) {
         this.handleCellClicked(e);
       }
@@ -174,7 +173,7 @@ export default {
     //       return {fontSize: this.cellHeight/2.5 + 'px'};
     //     case 'notesMid':
     //       return {fontSize: this.cellHeight/2 + 'px'};
-    //     case 'value': 
+    //     case 'value':
     //       return {fontSize: this.cellHeight/1.5 + 'px' };
     //     default:
     //       return {fontSize: this.cellHeight/2 + 'px'};

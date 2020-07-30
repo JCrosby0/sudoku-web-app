@@ -1,8 +1,8 @@
 <template>
   <div class="outerRow">
     <Cell
-      v-for="(cell, i) in settings.puzzleSize"
-      :key="'compRow' + rowId + 'cell' + i"
+      v-for="(cell, i) in numCells"
+      :key="'extRow' + rowId + 'cell' + i"
       :row-id="rowId"
       :cell-id="i"
       :settings="settings"
@@ -20,12 +20,20 @@
 import Cell from "./Cell.vue";
 
 export default {
-  name: "Row",
+  name: "ExternalRow",
   components: { Cell },
   props: {
+    numCells: {
+      required: true,
+      type: Number,
+    },
     rowId: {
       required: true,
       type: Number
+    },
+    direction: {
+      required: true,
+      type: String
     },
     settings: {
       required: true,
@@ -38,6 +46,11 @@ export default {
         width: 100 / this.settings.gridSize + "%"
       };
     },
+    rowStyle() {
+      return {
+        flexDirection: (this.direction === 'horizontal') ? 'row' : 'column'
+      }
+    }
   },
   methods: {
     handleCellClicked(obj) {
@@ -54,14 +67,14 @@ export default {
 </script>
 
 <style>
-/* .outerRow {
-  border: 2px grey solid;
+.outerRow {
+  /* border: 2px grey solid; */
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: row;
+  /* flex-direction: row; */
   flex-wrap: wrap;
-} */
+}
 .cell {
   flex: 1 1 auto;
   height: 100%;

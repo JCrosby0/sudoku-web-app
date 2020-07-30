@@ -22,7 +22,7 @@
           <el-button class="button">[NYI]Color</el-button>
         </div>
       </div>
-      <div class="toggles">
+      <div class="toggles" :style="toggleStyle">
         <el-button
           v-for="toggle in toggles"
           :key="toggle"
@@ -45,6 +45,13 @@ export default {
       currentToggle: "Normal",
       lastToggle: "Normal"
     };
+  },
+  computed: {
+    toggleStyle: () => {
+      return {
+        flexDirection: 'row'
+      }
+    }
   },
   mounted() {
     this.$nextTick(function() {

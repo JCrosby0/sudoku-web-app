@@ -125,9 +125,13 @@ export default {
   actions: {
     setPuzzleSize({
       commit
-    }, payload) {
-      // payload should be settings.puzzleSize
-      let emptyCellArray = new Array(payload * payload).fill({});
+    }, settings) {
+      // payload should be settings
+      const puzzleSize = settings.puzzleSize || 9
+      const matrixSize = puzzleSize  ** 2
+      const outerCells = puzzleSize * settings.borderRows * 4 || 0;
+      const arraySize = matrixSize + outerCells
+      let emptyCellArray = new Array(arraySize).fill({});
       emptyCellArray.forEach((cell, i) => {
         emptyCellArray[i] = {
           value: null,

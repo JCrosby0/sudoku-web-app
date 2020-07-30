@@ -8,42 +8,55 @@
     active-text-color="#90ee90"
     @select="handleMenu"
   >
-  <el-menu-item v-for="menu in menuArray"
-    :key="menu.id"
-    :index="menu.id"
-    class="icon-color"
-    >
-    <template slot="title">
-      <i :class="`${menu.icon} icon-color`"></i>
-      <span class="icon-color">{{menu.label}}</span>
-    </template>
-  </el-menu-item>
-  <el-submenu
-    v-if="collapsed"
-    index="0"
-    class="icon-color"
-    @select="handleMenu">
-    <template slot="title">
-      <i :class="`el-icon-menu icon-color`"></i>
-      <span class="icon-color"></span>
-    </template>
-    <el-menu-item v-for="menu in collapsedMenuArray"
-    :key="menu.id"
-    :index="menu.id"
+    <el-menu-item
+      v-for="menu in menuArray"
+      :key="menu.id"
+      :index="menu.id"
+      class="icon-color"
     >
       <template slot="title">
         <i :class="`${menu.icon} icon-color`"></i>
-        <span  class="icon-color">{{menu.label}}</span>
+        <span class="icon-color">{{ menu.label }}</span>
       </template>
     </el-menu-item>
-  </el-submenu>
+    <el-submenu
+      v-if="collapsed"
+      index="0"
+      class="icon-color"
+      @select="handleMenu"
+    >
+      <template slot="title">
+        <i :class="`el-icon-menu icon-color`"></i>
+        <span class="icon-color"></span>
+      </template>
+      <el-menu-item
+        v-for="menu in collapsedMenuArray"
+        :key="menu.id"
+        :index="menu.id"
+      >
+        <template slot="title">
+          <i :class="`${menu.icon} icon-color`"></i>
+          <span class="icon-color">{{ menu.label }}</span>
+        </template>
+      </el-menu-item>
+    </el-submenu>
   </el-menu>
 </template>
 
 <script>
 const menuArray = [
-  { id: "navLibrary", icon: "el-icon-collection", toggle: "library", label: "Library" },
-  { id: "navSet", icon: "el-icon-edit-outline", toggle: "set", label: "Set" },
+  {
+    id: "navLibrary",
+    icon: "el-icon-collection",
+    toggle: "library",
+    label: "Library"
+  },
+  {
+    id: "navSet",
+    icon: "el-icon-edit-outline",
+    toggle: "set",
+    label: "Create"
+  },
   // { id: "navInput", icon: "el-icon-edit", toggle: "controls", label: "Solve" },
   {
     id: "navRules",
@@ -63,31 +76,30 @@ export default {
   props: {
     collapsed: {
       required: true,
-      type: Boolean,
+      type: Boolean
     }
   },
   data() {
     return {
-      collapsedMenuArray: menuArray,
-    }
+      collapsedMenuArray: menuArray
+    };
   },
   computed: {
-    menuArray () {
-      return (this.collapsed) ? [] : menuArray;
+    menuArray() {
+      return this.collapsed ? [] : menuArray;
     }
-
   },
   methods: {
     handleMenu(menu) {
-      console.log('menu: ', menu)
-      const menuObj = this.menuArray.find(m => m.id === menu)
-      this.$emit('menuClick', menu)
-      this.$refs['menu'].closeMenu()
-      this.$refs['menu'].close()
-      console.log('this.$refs: ', this.$refs)
+      console.log("menu: ", menu);
+      const menuObj = this.menuArray.find(m => m.id === menu);
+      this.$emit("menuClick", menu);
+      this.$refs["menu"].closeMenu();
+      this.$refs["menu"].close();
+      console.log("this.$refs: ", this.$refs);
     }
   }
-}
+};
 </script>
 
 <style>
@@ -96,5 +108,4 @@ export default {
 .el-icon-menu:before {
   color: #ddd;
 }
-
 </style>

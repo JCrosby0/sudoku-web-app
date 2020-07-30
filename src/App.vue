@@ -7,18 +7,23 @@
       :orientation="orientation"
       @updateSettings="handleSettings"
     />
+    <PuzzleSetDrawer
+      :show-drawer="showSet"
+      :settings="settings"
+      :orientation="orientation"
+      @updateSettings="handleSettings"
+    />
     <NavBar :collapsed="collapsed" @toggle="handleToggle" />
     <div class="container" :style="containerStyle">
-      <Grid class="grid" :settings="settings"/>
+      <Grid class="grid" :settings="settings" />
       <Panel
         :settings="settings"
         :panel="panel"
         :orientation="orientation"
         class="panel"
-        @updateSettings="handleSettingsFromSet"></Panel>
-      <!-- <FooterBar
-        class='footer-bar'
-      ></FooterBar> -->
+        :style="stylePanel"
+        @updateSettings="handleSettingsFromSet"
+      ></Panel>
     </div>
   </div>
 </template>
@@ -26,8 +31,8 @@
 <script>
 import NavBar from "./components/NavBar.vue";
 import Grid from "./components/Grid.vue";
-// import FooterBar from "./components/FooterBar.vue"
 import Panel from "./components/Panel.vue";
+import PuzzleSetDrawer from "./components/DrawerSet.vue";
 import SettingsDrawer from "./components/DrawerSettings.vue";
 
 const defaultSettings = {
@@ -46,25 +51,30 @@ export default {
   components: {
     NavBar,
     Grid,
-    // FooterBar,
     Panel,
-    SettingsDrawer,
+    PuzzleSetDrawer,
+    SettingsDrawer
   },
   data() {
     return {
       settings: {},
-      panel: 'navRules',
+      panel: "navRules",
       showSettings: false,
-      orientation: 'vertical',
-      collapsed: false,
+      showSet: false,
+      orientation: "vertical",
+      collapsed: false
     };
   },
-  computed:{ 
-    containerStyle () {
-      const style = {
-        flexDirection: (this.orientation === 'horizontal') ? 'row' : 'column'
-      }
-      return style
+  computed: {
+    containerStyle() {
+      return {
+        flexDirection: this.orientation === "horizontal" ? "row" : "column"
+      };
+    },
+    stylePanel() {
+      return {
+        flex: this.orientation === "horizontal" ? "1 0 260px" : "1 0 20 0px"
+      };
     }
   },
   mounted() {
@@ -84,29 +94,34 @@ export default {
       // const containerWidth = 300; // [x]
       const height = window.innerHeight;
       const width = window.innerWidth;
-      const orientation = (width > height) ? 'horizontal' : 'vertical'
-      this.orientation = orientation
+      const orientation = width > height ? "horizontal" : "vertical";
+      this.orientation = orientation;
       this.collapsed = width < 800;
       // if window.innerWidth < 800 ? verticalorientation : horizontal orientation
-    //   const availHeight = height - headerHeight;
-    //   const availWidth = width - (width > 800 && containerWidth);
+      //   const availHeight = height - headerHeight;
+      //   const availWidth = width - (width > 800 && containerWidth);
     },
     handleSettings(obj) {
       // don't update settings if drawer was closed / cancelled
       if (obj.action) {
         this.settings = Object.assign({}, obj);
       }
-      this.handleToggle("navSettings");
+      this.showSettings = false;
+      this.showSet = false;
     },
     handleSettingsFromSet(obj) {
       this.settings = Object.assign({}, this.settings, obj);
     },
     handleToggle(type) {
-      if (type === 'navSettings') {
+      console.log("handle Toggle: type: ", type);
+      if (type === "navSettings") {
         this.showSettings = !this.showSettings;
-        return
+        return;
+      } else if (type === "navSet") {
+        this.showSet = !this.showSet;
+        return;
       }
-      this.panel = (this.panel === type) ? null : type;
+      this.panel = this.panel === type ? null : type;
     }
   }
 };
@@ -136,15 +151,14 @@ body {
   justify-content: space-between;
   max-height: 100%;
 }
-.footer-bar
-{
+.footer-bar {
   flex: 0 0 auto;
 }
 .grid {
   flex: 1 1 auto;
 }
 .panel {
-  flex: 1 0 250px;
+  flex: 1 0 230px;
   overflow: auto;
 }
 .header {

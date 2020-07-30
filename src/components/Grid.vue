@@ -1,5 +1,6 @@
 <template>
   <div class="grid-main">
+    <!-- Grid Outer - Flex Row, 2*outer + 1 divs -->
     <div
       id="gridOuter"
       key="gridOuter"
@@ -7,18 +8,99 @@
       class="grid-outer"
       @click.self="handleClickOuter"
     >
-      <div :style="styleGridInner" class="grid-inner">
-        <Row
-          v-for="(_, i) in settings.puzzleSize"
-          :key="'compRow' + i"
-          :row-id="i"
-          :style="styleGridRow"
+      <!-- left 2 columns -->
+      <div v-if="settings.borderRows >= 2" class="outerLeft2">
+        <RowExternal
+          :num-cells="settings.puzzleSize"
           :settings="settings"
-          class="grid-row"
-          @emitCellClicked="handleCellClicked"
-          @emitDragAdd="handleDragAdd"
-          @emitDragEnd="handleDragEnd"
-        ></Row>
+          :row-id="settings.puzzleSize + 6"
+          :style="styleGridOuterVert"
+          direction="vertical"
+        ></RowExternal>
+      </div>
+      <div v-if="settings.borderRows >= 1" class="outerLeft1">
+        <RowExternal
+          :num-cells="settings.puzzleSize"
+          :settings="settings"
+          :row-id="settings.puzzleSize + 2"
+          :style="styleGridOuterVert"
+          direction="vertical"
+        ></RowExternal>
+      </div>
+      <!-- Grid Column - Flex Column, 2 * outer + grid iterable divs -->
+      <div :style="styleGridColumn" class="grid-column">
+        <!-- top 2 columns -->
+        <div v-if="settings.borderRows >= 2" class="outerTop2">
+          <RowExternal
+            :num-cells="settings.puzzleSize"
+            :settings="settings"
+            :row-id="settings.puzzleSize + 4"
+            :style="styleGridOuterHor"
+            direction="horizontal"
+          ></RowExternal>
+        </div>
+        <div v-if="settings.borderRows >= 1" class="outerTop1">
+          <RowExternal
+            :num-cells="settings.puzzleSize"
+            :settings="settings"
+            :row-id="settings.puzzleSize"
+            :style="styleGridOuterHor"
+            direction="horizontal"
+          ></RowExternal>
+        </div>
+        <!-- Main Matrix iterable -->
+        <div :style="styleGridMatrix" class="grid-matrix">
+          <Row
+            v-for="(_, i) in settings.puzzleSize"
+            :key="'compRow' + i"
+            :row-id="i"
+            :style="styleGridRow"
+            :settings="settings"
+            class="grid-row"
+            @emitCellClicked="handleCellClicked"
+            @emitDragAdd="handleDragAdd"
+            @emitDragEnd="handleDragEnd"
+          ></Row>
+        </div>
+        <!-- End Main Matrix -->
+        <!-- bottom 2 rows -->
+        <div v-if="settings.borderRows >= 1" class="outerBottom1">
+          <RowExternal
+            :num-cells="settings.puzzleSize"
+            :settings="settings"
+            :row-id="settings.puzzleSize + 1"
+            :style="styleGridOuterHor"
+            direction="horizontal"
+          ></RowExternal>
+        </div>
+        <div v-if="settings.borderRows >= 2" class="outerBottom2">
+          <RowExternal
+            :num-cells="settings.puzzleSize"
+            :settings="settings"
+            :row-id="settings.puzzleSize + 5"
+            :style="styleGridOuterHor"
+            direction="horizontal"
+          ></RowExternal>
+        </div>
+      </div>
+      <!-- right 2 columns -->
+      <div v-if="settings.borderRows >= 1" class="outerRight1">
+        <RowExternal
+          :num-cells="settings.puzzleSize"
+          :settings="settings"
+          :row-id="settings.puzzleSize + 3"
+          :style="styleGridOuterVert"
+          direction="vertical"
+        ></RowExternal>
+      </div>
+      <div v-if="settings.borderRows >= 2" class="outerRight2">
+        <RowExternal
+          :num-cells="settings.puzzleSize"
+          :settings="settings"
+          :row-id="settings.puzzleSize + 7"
+          :style="styleGridOuterVert"
+          direction="vertical"
+        ></RowExternal>
       </div>
     </div>
   </div>
@@ -26,11 +108,12 @@
 
 <script>
 import Row from "./Row.vue";
+import RowExternal from "./RowExternal.vue";
 import { mapGetters, mapActions } from "vuex";
 import * as fn from "../plugins/sudokuFunctions";
 export default {
   name: "Grid",
-  components: { Row },
+  components: { Row, RowExternal },
   props: {
     settings: {
       required: true,
@@ -46,7 +129,7 @@ export default {
         top: null
       },
       dragSelectionObj: {},
-      orientation: 'horizontal'
+      orientation: "horizontal"
     };
   },
   computed: {
@@ -57,8 +140,12 @@ export default {
       "cursorIndex"
     ]),
     fontSize() {
-      const size = window.innerWidth / parseFloat(getComputedStyle(document.querySelector('html'))['font-size']);
-      console.log('size: ', size)
+      const size =
+        window.innerWidth /
+        parseFloat(
+          getComputedStyle(document.querySelector("html"))["font-size"]
+        );
+      console.log("size: ", size);
       return size;
     },
     dragSelection() {
@@ -67,6 +154,7 @@ export default {
     gridSize() {
       return this.settings.puzzleSize + this.settings.borderRows * 2;
     },
+    // overall outer div styling
     styleGridOuter() {
       return {
         height: this.cellLength * this.gridSize + "px",
@@ -74,12 +162,34 @@ export default {
         fontSize: this.cellLength * 0.6 + "px"
       };
     },
-    styleGridInner() {
+    // outer column styling
+    styleGridOuterVert() {
+      return {
+        height: this.cellLength * this.gridSize + "px",
+        width: this.cellLength + "px",
+        fontSize: this.cellLength * 0.6 + "px"
+      };
+    },
+    // outer row styling
+    styleGridOuterHor() {
+      return {
+        height: this.cellLength + "px",
+        width: this.cellLength * this.settings.puzzleSize + "px",
+        fontSize: this.cellLength * 0.6 + "px"
+      };
+    },
+    styleGridColumn() {
+      return {
+        height: this.cellLength * this.gridSize + "px",
+        width: this.cellLength * this.settings.puzzleSize + "px"
+        // top: this.cellLength * this.settings.borderRows + "px",
+        // left: this.cellLength * this.settings.borderRows + "px"
+      };
+    },
+    styleGridMatrix() {
       return {
         height: this.cellLength * this.settings.puzzleSize + "px",
-        width: this.cellLength * this.settings.puzzleSize + "px",
-        top: this.cellLength * this.settings.borderRows + "px",
-        left: this.cellLength * this.settings.borderRows + "px"
+        width: this.cellLength * this.settings.puzzleSize + "px"
       };
     },
     styleGridRow() {
@@ -92,11 +202,11 @@ export default {
   watch: {
     gridSize() {
       this.updateWindowSize();
-      this.setPuzzleSize(this.settings.puzzleSize);
+      this.setPuzzleSize(this.settings);
     }
   },
   mounted() {
-    this.setPuzzleSize(9);
+    this.setPuzzleSize(this.settings);
     this.$nextTick(function() {
       this.updateWindowSize();
       // resize for sizing the grid
@@ -123,17 +233,19 @@ export default {
       "clearCursorIndex"
     ]),
     updateWindowSize() {
+      const widthTreshold = 940; // px
       const headerHeight = 60; // px
       const containerWidth = 300; // px
-      const panelHeight = 250; // px
+      const panelHeight = 226; // px
       const height = window.innerHeight;
       const width = window.innerWidth;
-      const orientation = (width > height) ? 'horizontal' : 'vertical'
-      this.orientation = orientation
-      // if window.innerWidth < 800 ? verticalorientation : horizontal orientation
-      const availHeight = height - headerHeight - (width < 800 && panelHeight);
-      const availWidth = width - (width > 800 && containerWidth);
-      this.cellLength = Math.min(availWidth, availHeight) / (this.gridSize + 1);
+      const orientation = width > height ? "horizontal" : "vertical";
+      this.orientation = orientation;
+      // if window.innerWidth < widthTreshold ? verticalorientation : horizontal orientation
+      const availHeight =
+        height - headerHeight - (width < widthTreshold && panelHeight);
+      const availWidth = width - (width > widthTreshold && containerWidth);
+      this.cellLength = Math.min(availWidth, availHeight) / this.gridSize;
       this.outerMargin.left =
         (availWidth - this.cellLength * this.gridSize) / 2;
       this.outerMargin.top =
@@ -298,9 +410,9 @@ export default {
           // filled
           else if (
             this.settings.highlightOptions.includes("Filled") &&
-            (cell.value)
+            cell.value
           ) {
-            console.log(cell.value)
+            console.log(cell.value);
             this.highlightCell(index);
           }
         });
@@ -337,7 +449,7 @@ export default {
      * - existing selection should be removed
      */
     handleKeyDown(e) {
-      if (e.path.length > 4) return // ignore typing in puzzle set box
+      if (e.path.length > 4) return; // ignore typing in puzzle set box
       let newCursorCell = {
         cellId: this.cursorCell.cellId,
         rowId: this.cursorCell.rowId
@@ -390,7 +502,7 @@ export default {
       // set the new cursor highlighting
       // store for next use
       this.cursorCell = newCursorCell;
-      this.setCursorIndex(index)
+      this.setCursorIndex(index);
     },
     /**
      * * handleKeyPress
@@ -566,23 +678,36 @@ export default {
   padding: 0 0 4px 0;
 }
 .grid-outer {
+  /* contains the outer columns and grid inner */
   margin: auto;
   position: relative;
-  background: lightgrey;
-  /* box-sizing: border-box; */
+  background: darkgrey;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  border: 1px black solid;
 }
-.grid-inner {
+.grid-matrix {
+  /* contains the outer rows, and the main matrix */
   background: grey;
   position: relative;
-  display: flex;
-  flex-direction: column;
   justify-content: left;
   border: 2px black solid;
+  /* box-sizing: border-box; */
+}
+.grid-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 .grid-row {
   flex: 1 1 auto;
   border: 0;
   /* border: 1px red solid;
   box-sizing: border-box; */
+}
+.outerRow {
+  box-sizing: border-box;
 }
 </style>
