@@ -12,6 +12,12 @@
       :settings="settings"
       :orientation="orientation"
       @updateSettings="handleSettings"
+    />    
+    <PuzzleLibraryDrawer
+      :show-drawer="showLibrary"
+      :settings="settings"
+      :orientation="orientation"
+      @updateSettings="handleSettings"
     />
     <NavBar :collapsed="collapsed" @toggle="handleToggle" />
     <div class="container" :style="containerStyle">
@@ -34,6 +40,7 @@ import Grid from "./components/Grid.vue";
 import Panel from "./components/Panel.vue";
 import PuzzleSetDrawer from "./components/DrawerSet.vue";
 import SettingsDrawer from "./components/DrawerSettings.vue";
+import PuzzleLibraryDrawer from "./components/DrawerLibrary";
 
 const defaultSettings = {
   puzzleSize: 9,
@@ -53,7 +60,8 @@ export default {
     Grid,
     Panel,
     PuzzleSetDrawer,
-    SettingsDrawer
+    SettingsDrawer,
+    PuzzleLibraryDrawer
   },
   data() {
     return {
@@ -61,6 +69,7 @@ export default {
       panel: "navRules",
       showSettings: false,
       showSet: false,
+      showLibrary: false,
       orientation: "vertical",
       collapsed: false
     };
@@ -104,24 +113,26 @@ export default {
     handleSettings(obj) {
       // don't update settings if drawer was closed / cancelled
       if (obj.action) {
-        this.settings = Object.assign({}, obj);
+        this.settings = Object.assign({}, this.settings, obj);
       }
       this.showSettings = false;
       this.showSet = false;
+      this.showLibrary = false;
     },
     handleSettingsFromSet(obj) {
       this.settings = Object.assign({}, this.settings, obj);
     },
     handleToggle(type) {
-      console.log("handle Toggle: type: ", type);
       if (type === "navSettings") {
         this.showSettings = !this.showSettings;
         return;
       } else if (type === "navSet") {
         this.showSet = !this.showSet;
         return;
+      } else if (type === "navLibrary") {
+        this.showLibrary = !this.showLibrary;
       }
-      this.panel = this.panel === type ? null : type;
+      // this.panel = this.panel === type ? null : type;
     }
   }
 };

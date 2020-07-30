@@ -84,7 +84,7 @@ export default {
       else return "black";
     },
     valueClassObj() {
-      const outer = (this.cellIndex >= this.settings.puzzleSize) ^ 2;
+      const outer = this.cellIndex >= this.settings.puzzleSize ** 2;
       return {
         value: true,
         fixed: outer ? true : this.cellObj.fixed,

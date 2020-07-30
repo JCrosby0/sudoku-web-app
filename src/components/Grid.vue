@@ -394,7 +394,15 @@ export default {
           ) {
             this.highlightCell(index);
           }
+          // filled
+          else if (
+            this.settings.highlightOptions.includes("Filled") &&
+            cell.value
+          ) {
+            this.highlightCell(index);
+          }
           // value + seen
+          // * this one may need to go last, as it can satisfy if but not highlight the cell...
           else if (
             this.settings.highlightOptions.includes("Number + Seen") &&
             (obj.value || obj.value === 0)
@@ -406,14 +414,6 @@ export default {
             ) {
               this.highlightCell(index);
             }
-          }
-          // filled
-          else if (
-            this.settings.highlightOptions.includes("Filled") &&
-            cell.value
-          ) {
-            console.log(cell.value);
-            this.highlightCell(index);
           }
         });
       }
@@ -600,6 +600,7 @@ export default {
         } else if (!output.ctrl && !output.shift) {
           // Use keystroke for cell value: -shift, -ctrl
           c.value = output.key;
+          c.fixed = false;
         } else {
           // this applies to every selected cell
           console.log("what is this key combination?", output, c);

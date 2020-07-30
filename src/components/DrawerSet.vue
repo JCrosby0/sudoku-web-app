@@ -93,26 +93,26 @@ const rulesets = [
 ]
 export default {
   name: "PuzzleSetDrawer",
-    props: {
-    orientation: {
-      required: false,
-      type: String,
-      default: () => 'vertical'
-    },
-    showDrawer: {
-      required: true,
-      type: Boolean,
-      default: () => false
-    },
-    settings: {
-      required: true,
-      type: Object,
-      default: () => {
-        return {
-          puzzleSize: 9,
-          borderRows: 2,
-          boxSizeHor: 3,
-          boxSizeVer: 3
+  props: {
+  orientation: {
+    required: false,
+    type: String,
+    default: () => 'vertical'
+  },
+  showDrawer: {
+    required: true,
+    type: Boolean,
+    default: () => false
+  },
+  settings: {
+    required: true,
+    type: Object,
+    default: () => {
+      return {
+        puzzleSize: 9,
+        borderRows: 2,
+        boxSizeHor: 3,
+        boxSizeVer: 3
         };
       }
     }

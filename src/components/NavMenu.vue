@@ -5,9 +5,9 @@
     mode="horizontal"
     background-color="#808080"
     text-color="#2c3f50"
-    active-text-color="#90ee90"
     @select="handleMenu"
   >
+    <!-- active-text-color="#90ee90" -->
     <el-menu-item
       v-for="menu in menuArray"
       :key="menu.id"
@@ -18,7 +18,9 @@
         <i :class="`${menu.icon} icon-color`"></i>
         <span class="icon-color">{{ menu.label }}</span>
       </template>
+
     </el-menu-item>
+
     <el-submenu
       v-if="collapsed"
       index="0"
@@ -46,24 +48,24 @@
 <script>
 const menuArray = [
   {
-    id: "navLibrary",
-    icon: "el-icon-collection",
-    toggle: "library",
-    label: "Library"
-  },
-  {
     id: "navSet",
     icon: "el-icon-edit-outline",
     toggle: "set",
     label: "Create"
   },
-  // { id: "navInput", icon: "el-icon-edit", toggle: "controls", label: "Solve" },
   {
-    id: "navRules",
-    icon: "el-icon-chat-square",
-    toggle: "rules",
-    label: "Rules"
+    id: "navLibrary",
+    icon: "el-icon-collection",
+    toggle: "library",
+    label: "Library"
   },
+  // { id: "navInput", icon: "el-icon-edit", toggle: "controls", label: "Solve" },
+  // {
+  //   id: "navRules",
+  //   icon: "el-icon-chat-square",
+  //   toggle: "rules",
+  //   label: "Rules"
+  // },
   {
     id: "navSettings",
     icon: "el-icon-set-up",
