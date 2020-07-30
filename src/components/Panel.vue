@@ -3,21 +3,21 @@
     <Rules
       v-show="panel === 'navRules'"
       :settings="settings"
-      :orientation="orientation"/>
-    <Library v-show="panel === 'navLibrary'" 
-      @updateSettings="updateSettings"/>
-    <PuzzleSet
+      :orientation="orientation"
+    />
+    <Library v-show="panel === 'navLibrary'" @updateSettings="updateSettings" />
+    <!-- <PuzzleSet
        v-show="panel === 'navSet'"
       :settings="settings"
       @updateSettings="updateSettings"
-    />
-  </div> 
+    /> -->
+  </div>
 </template>
 
 <script>
 import Rules from "./PanelRules.vue";
-import PuzzleSet from "./PanelSet.vue";
-import Library from "./PanelLibrary.vue"
+// import PuzzleSet from "./PanelSet.vue";
+import Library from "./PanelLibrary.vue";
 export default {
   name: "Panel",
   props: {
@@ -27,30 +27,29 @@ export default {
     },
     settings: {
       required: true,
-      type: Object,
+      type: Object
     },
     panel: {
       required: false,
       type: String,
-      default: () => 'hidden'
+      default: () => "hidden"
     }
   },
-   components: {
+  components: {
     Rules,
-    PuzzleSet,
+    // PuzzleSet,
     Library
   },
   methods: {
-    updateSettings (payload) {
-      this.$emit('updateSettings', payload)
+    updateSettings(payload) {
+      this.$emit("updateSettings", payload);
     }
   }
-}
+};
 </script>
 
 <style>
 .panel-main {
   width: 100%;
 }
-
 </style>

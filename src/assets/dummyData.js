@@ -35,13 +35,13 @@ validRows.forEach((_, i) => {
 let validCols = new Array(81).fill({});
 validCols.forEach((_, i) => {
   validCols[i] = Object.assign({}, JSON.parse(emptyCellJSON)) 
-  validCols[i].value = i ? Math.ceil(i / 9) : 1,
+  validCols[i].value = i ? Math.ceil((i + 1) / 9) : 1,
   validCols[i].index = i
 });;
 let validBoxes = new Array(81).fill({});
 validBoxes.forEach((_, i) => {
   validBoxes[i] = Object.assign({}, JSON.parse(emptyCellJSON)) 
-  validBoxes[i].value = ((Math.ceil(i / 9) % 3) * 3) + (i % 9) + 1,
+  validBoxes[i].value = ((Math.ceil((i+1) / 9) % 3) * 3) + (i % 9) + 1,
   validBoxes[i].index = 1
 });
 const solutionString = "415962378763185429928374561831649257672531984549827613396218745157496832284753196";

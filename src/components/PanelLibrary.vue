@@ -3,7 +3,13 @@
     <div class="library left">
       <h4>Puzzle Library</h4>
       <span>Select a puzzle to load:</span>
-      <el-select v-model="puzzle" filterable data-cy="libraryInput" class="wide">
+      <el-select
+        v-model="puzzle"
+        filterable
+        data-cy="libraryInput"
+        class="wide"
+        @input="loadPuzzle"
+      >
         <el-option
           v-for="(option, i) in puzzleList"
           :key="'puzzleOption-' + i"
@@ -51,7 +57,7 @@ export default {
         })
         .then(() => {
           this.setPuzzle();
-          this.$emit('updateSettings', {title: this.puzzle})
+          this.$emit("updateSettings", { title: this.puzzle });
         })
         .catch(err => {
           console.error(err);

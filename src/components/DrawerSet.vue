@@ -58,7 +58,11 @@
           :min="2"
           :max="4"
         ></el-slider>
-        <li>Lock Puzzle</li>
+        <li>Lock Puzzle
+          <el-tooltip content="Locking puzzle will prevent user from modifying givens" placement="top">
+            <i class="el-icon-info"></i>
+          </el-tooltip>
+        </li>
         <el-button type="warning" :disabled="!setMode" plain @click="lockPuzzle"
           >Lock</el-button>
         <el-button type="warning" :disabled="setMode" plain @click="unlockPuzzle"
