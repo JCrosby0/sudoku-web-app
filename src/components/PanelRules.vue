@@ -107,6 +107,7 @@ import CheckPuzzle from "./CheckPuzzle.vue"
 import { mapActions, mapGetters } from "vuex";
 
 const testConfig = [
+  { active: true, test: chk.complete, description: "Values in every cell", result: null },
   { active: true, test: chk.rows, description: "Unique values in Rows", result: null },
   { active: true, test: chk.cols, description: "Unique values in Columns", result: null },
   { active: true, test: chk.boxes, description: "Unique values in Boxes", result: null },
@@ -217,13 +218,20 @@ export default {
       const testConfig = this.testConfig
       const tests = [];
       const vals = this.currentState.map(c => Number.parseInt(c.value));
+      console.log('vals: ', vals)
       testConfig.forEach(testCase => {
         if (testCase.active) {
           const result = testCase.test(vals);
+          console.log('result: ', result)
           if (result) {
-            const valid = result.every(r => chk.testUniqueLength(r));
-            tests.push(valid);
-            testCase.result = true
+            if (Array.isArray(result)) {
+              const valid = result.every(r => chk.testUniqueLength(r));
+              tests.push(valid);
+              testCase.result = true
+            } else {
+              tests.push(result) // if the test resturns truthy
+              testCase.result= result
+            }
           } else {
             tests.push(result);
             testCase.result = false
@@ -236,6 +244,7 @@ export default {
           type: "warning"
         });
       } else if (tests.every(t => t)) {
+        console.log('tests: ', tests)
         this.showTestResults = true
         // this.$message({
         //   message: "Looks good to me!",

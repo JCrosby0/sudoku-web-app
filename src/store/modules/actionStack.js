@@ -114,7 +114,9 @@ export default {
     },
     // to reset the puzzle
     GET_INITIAL_STATE(state) {
-      state.actionStack = [state.initialState];
+      // state.actionStack = [];
+      console.log('state.initialState: ', state.initialState)
+      state.actionStack = deepCopy(state.initialState)
     },
     // avaialable only to the puzzle setter
     SET_INITIAL_STATE(state, payload) {

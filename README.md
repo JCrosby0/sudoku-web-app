@@ -36,26 +36,24 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### TODO:
 
-## Set up data structure for current state of grid
+## Bugs:
 
-# undo redo stack -- fails sometimes
-
-# List out functionality required for grid decoration
-
-# reset puzzle should return it to the loaded state, not an empty grid
+# undo redo stack -- fails after loading a puzzle
 
 # check puzzle could (offer to) highlight bad cells
 
+# reset puzzle should return it to the loaded state, not an empty grid
+
 # some tab select / active region issues, ie click on body before can input
+
+## Enhance:
+
+# List out functionality required for grid decoration
+
+# Set up data structure for regions (killer, thermo etc)
 
 # color back ground inputs
 
-# reactive menu design // menu across the bottom?
-
 # puzzle validation for additional rules
 
-# dynamic number sizing to scale with grid size -- too small if no border cells
-
-# check screen to list all individual checks
-
-# menus to be handled for portrait mode, modal or from bottom
+# Use OpenCV to interpret sudoku puzzle from image and populate grid

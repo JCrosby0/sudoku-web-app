@@ -1,7 +1,16 @@
 const fn = require('./sudokuFunctions')
 
 const testUniqueLength = (array) => {
-  return array.length && array.length == (Array.from(new Set(array))).length
+  console.log('array: ', array)
+  console.log('array.length: ', array.length)
+  const testLength = Array.from(new Set(array))
+    .filter(n => n)
+    .length
+
+  console.log('testLength: ', testLength)
+  const result = (array.length === testLength)
+  console.log('result: ', result)
+  return result
 };
 const validateArray = (array) => {
   return (array.length > 81) ? array.slice(0, 81) : array
@@ -13,16 +22,19 @@ const testFullArray = (array) => {
   }
   return true
 }
+const complete = (array) => {
+  array = validateArray(array)
+  return array.every(a => a)
+}
 // turn full array into an array of rows
 const rows = (array) => {
   array = validateArray(array)
   const test = testFullArray(array)
   if (!test && array.length > 81) {
     array.length = 81
-  }
-  else if (!test) return false;
+  } else if (!test) return false;
   const rowArray = new Array(9).fill();
-  rowArray.forEach((_,i) => rowArray[i] = []);
+  rowArray.forEach((_, i) => rowArray[i] = []);
   array.forEach((c, i) => {
     rowArray[fn.rowFromIndex(i, 9)].push(c)
   })
@@ -76,5 +88,6 @@ module.exports = {
   rows,
   cols,
   boxes,
-  diagonals
+  diagonals,
+  complete
 };

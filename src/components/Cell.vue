@@ -11,7 +11,7 @@
     @dragleave="handleDrag"
   >
     <span :class="valueClassObj">
-      {{ cellObj.value }}
+      {{ value }}
     </span>
     <span v-show="cellObj.value === null" class="notesTop">
       {{ notesTop }}
@@ -58,6 +58,9 @@ export default {
     cellObj() {
       // const desc = this.cellDescription(this.cellIndex);
       return this.cellDescription(this.cellIndex);
+    },
+    value() {
+      return this.cellDescription(this.cellIndex).value;
     },
     // cellHeight() {
     //   const cell = document.querySelector('.cell')

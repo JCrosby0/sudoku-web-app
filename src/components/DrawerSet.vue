@@ -86,10 +86,13 @@
 import {mapActions} from "vuex"
 const rulesets = [
   {name: "Normal", description: "Normal Sudoku rules apply."},
-  {name: "Knight", description: "Cells connected by a Knight's move cannot contain the same digit."},
   {name: "Killer", description: "Cages contain unique digits summing to the indicated total."},
+  {name: "Knight", description: "Cells connected by a Knight's move cannot contain the same digit."},
+  {name: "Queen", description: "No 9 digit may see another 9 along a diagonal."},
   {name: "Sandwich", description: "Clues outside the grid indicate the sum of digits between 1 and 9 in the indicated column/row."},
+  {name: "Skyscraper", description: "Clues outside of the grid indicate the number of digits increasing along the row ."},
   {name: "Thermo", description: "Along a thermometer, digits must increase starting from the bulb."},
+  {name: "X-Sum", description: "Clues outside the grid indicate the sum of the first n digits where n is the first digit in the indicated column/row."},
 ]
 export default {
   name: "PuzzleSetDrawer",

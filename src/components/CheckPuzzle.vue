@@ -18,7 +18,7 @@
       <template slot-scope="scope">
         <div class="icon-styling">
           <i v-if="scope.row.result" class="el-icon-success success"></i>
-          <i v-else class="el-icon-cross danger"></i>
+          <i v-else class="el-icon-error danger"></i>
         </div>
       </template>
     </el-table-column>
