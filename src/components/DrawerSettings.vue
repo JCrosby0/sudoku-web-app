@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-drawer
-      id="settings-container"
+      id="drawer-settings"
       :visible.sync="showDrawer"
       :before-close="handleClose"
       :direction="direction"
@@ -9,6 +9,7 @@
     >
       <!-- title="Settings" -->
       <h4 slot="title" class="left">Settings</h4>
+      <div id="settings-container">
       <el-form ref="form" :model="form" label-width="125px">
         <el-form-item label="Select:" class="left">
           <el-checkbox-group v-model="form.selectOptions">
@@ -39,6 +40,7 @@
           </el-button-group>
         </el-form-item>
       </el-form>
+      </div>
     </el-drawer>
   </div>
 </template>

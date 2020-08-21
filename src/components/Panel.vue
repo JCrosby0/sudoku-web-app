@@ -5,7 +5,7 @@
       :settings="settings"
       :orientation="orientation"
     />
-    <Library v-show="panel === 'navLibrary'" @updateSettings="updateSettings" />
+    <!-- <Library v-show="panel === 'navLibrary'" @updateSettings="updateSettings" /> -->
     <!-- <PuzzleSet
        v-show="panel === 'navSet'"
       :settings="settings"
@@ -17,7 +17,7 @@
 <script>
 import Rules from "./PanelRules.vue";
 // import PuzzleSet from "./PanelSet.vue";
-import Library from "./PanelLibrary.vue";
+// import Library from "./PanelLibrary.vue";
 export default {
   name: "Panel",
   props: {
@@ -38,7 +38,7 @@ export default {
   components: {
     Rules,
     // PuzzleSet,
-    Library
+    // Library
   },
   methods: {
     updateSettings(payload) {

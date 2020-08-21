@@ -46,6 +46,10 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 # some tab select / active region issues, ie click on body before can input
 
+# E2E Cypress tests failing keyboard input for some reason
+
+# Check function not returing errors properly
+
 ## Enhance:
 
 # List out functionality required for grid decoration

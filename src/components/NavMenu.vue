@@ -12,6 +12,7 @@
       v-for="menu in menuArray"
       :key="menu.id"
       :index="menu.id"
+      :data-cy="menu.id"
       class="icon-color"
     >
       <template slot="title">

@@ -1,12 +1,11 @@
 describe("Cell Interactivity", () => {
   it("Shows cursor when clicked", () => {
     cy.visit("/");
-    cy.get("[data-cy=navRules]").click()
     cy.get("#r0c0").click();
     cy.get("#r0c0").should("have.class", "selected");
   });
   it("Clears when clicked outside grid", () => {
-    cy.get(".grid-outer").click("top");
+    cy.get(".grid-outer").click("left");
     cy.get("#r0c0").should("not.have.class", "selected");
   });
   it("Selects when clicked", () => {
@@ -80,6 +79,7 @@ describe("Cell Interactivity", () => {
     cy.get("#r0c8").should("contain", "789");
   });
   it("Can undo and redo input", () => {
+    cy.contains("Other").click()
     cy.get("#r3c3").click();
     cy.get("body").type("1");
     cy.get("#r4c4").click();

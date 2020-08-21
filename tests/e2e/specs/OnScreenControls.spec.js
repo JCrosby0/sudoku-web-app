@@ -1,7 +1,7 @@
 describe("On Screen Controls", () => {
   it("Can input numbers", () => {
     cy.visit("/");
-    cy.contains("Rules").click();
+    cy.contains("Input").click();
     cy.get("#r3c0").click();
     cy.get("[data-cy=1]").click();
     cy.get("#r3c0").should("contain", 1)
@@ -33,18 +33,16 @@ describe("On Screen Controls", () => {
     cy.get("body").type("{shift}", {
       release: false
     });
+    cy.get("[data-cy=Normal]").should("have.class", "el-button--primary");
     cy.get("[data-cy=Top]").should("have.class", "el-button--primary");
-    cy.get("body").type("{shift}", {
-      release: true
-    });
+    cy.get("body").type("{shift}"); // to release modifier
+    cy.get("[data-cy=Normal]").should("not.have.class", "el-button--primary");
     cy.get("[data-cy=Top]").should("not.have.class", "el-button--primary");
     cy.get("body").type("{control}", {
       release: false
     });
     cy.get("[data-cy=Mid]").should("have.class", "el-button--primary");
-    cy.get("body").type("{control}", {
-      release: true
-    });
+    cy.get("body").type("{control}"); // to release modifier
     cy.get("[data-cy=Mid]").should("not.have.class", "el-button--primary");
   });
   it("Updates toggle with spacebar", () => {

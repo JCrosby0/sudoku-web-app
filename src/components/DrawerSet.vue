@@ -1,6 +1,6 @@
 <template>
   <el-drawer
-    id="settings-container"
+    id="drawer-set"
     :visible.sync="showDrawer"
     :before-close="handleClose"
     :direction="direction"

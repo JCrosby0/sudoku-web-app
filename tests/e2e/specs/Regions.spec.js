@@ -1,7 +1,7 @@
 describe("Regions", () => {
   it("Can change size of grid", () => {
     cy.visit("/");
-    cy.get("#navSet").click();
+    cy.get("[data-cy=navSet").click();
     cy.get("[data-cy=puzzleSize]")
       .find("input")
       .clear()
@@ -54,7 +54,7 @@ describe("Regions", () => {
   });
   it("Can resize outer region", () => {
     // cy.get("#navSet").click();
-    cy.get(".grid-inner")
+    cy.get(".grid-matrix")
       .invoke("width")
       .then(initialWidth => {
         cy.get("[data-cy=borderRows]")
@@ -63,11 +63,11 @@ describe("Regions", () => {
           .type("0")
           .type("{enter}"); // reduce borderRows to 0
         // test
-        cy.get(".grid-inner")
+        cy.get(".grid-matrix")
           .invoke("width")
           .should("be.greaterThan", initialWidth);
       });
-    cy.get(".grid-inner")
+    cy.get(".grid-matrix")
       .invoke("width")
       .then(changedWidth => {
         cy.get("[data-cy=borderRows]")
@@ -76,7 +76,7 @@ describe("Regions", () => {
           .type("2")
           .type("{enter}"); // reduce borderRows to 0
         // test
-        cy.get(".grid-inner")
+        cy.get(".grid-matrix")
           .invoke("width")
           .should("be.lessThan", changedWidth);
       });
